@@ -54,16 +54,16 @@ export default {
       },
       keyframes: {
         fadeUp: {
-          from: { opacity: 0, transform: 'translateY(20px)' },
-          to: { opacity: 1, transform: 'translateY(0)' },
+          from: { opacity: '0', transform: 'translateY(20px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
         },
         fadeIn: {
-          from: { opacity: 0 },
-          to: { opacity: 1 },
+          from: { opacity: '0' },
+          to: { opacity: '1' },
         },
         slideIn: {
-          from: { opacity: 0, transform: 'translateX(30px)' },
-          to: { opacity: 1, transform: 'translateX(0)' },
+          from: { opacity: '0', transform: 'translateX(30px)' },
+          to: { opacity: '1', transform: 'translateX(0)' },
         },
         shimmer: {
           '0%': { backgroundPosition: '-200% 0' },
