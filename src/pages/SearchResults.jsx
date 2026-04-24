@@ -621,7 +621,6 @@ export default function SearchResults() {
       )}
     </>
   );
-=======
 import React, { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
