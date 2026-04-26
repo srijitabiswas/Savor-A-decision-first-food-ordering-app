@@ -1,23 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Star, Clock, Users, Plus } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { getRestaurantById } from '../data/mockData';
 
-const tagColors = {
-  'Best Seller': 'bg-accent-purple/20 text-accent-purple border-accent-purple/30',
-  'High Rated': 'bg-accent-gold/10 text-accent-gold border-accent-gold/30',
-  'Best Value': 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-  Premium: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
-  'Quick Bite': 'bg-sky-500/10 text-sky-400 border-sky-500/20',
-  Healthy: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
+const tagStyles = {
+  'Best Seller': { bg: '#7C6CFF', text: '#fff' },
+  'High Rated':  { bg: '#D6C6A8', text: '#1A1D23' },
+  'Best Value':  { bg: '#10b981', text: '#fff' },
+  'Premium':     { bg: '#f43f5e', text: '#fff' },
+  'Quick Bite':  { bg: '#0ea5e9', text: '#fff' },
+  'Healthy':     { bg: '#14b8a6', text: '#fff' },
+  'Trending':    { bg: '#8b5cf6', text: '#fff' },
 };
+
+const FALLBACK = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80';
 
 export default function DishCard({ dish, delay = 0 }) {
   const navigate = useNavigate();
   const { dispatch, state } = useApp();
   const restaurant = getRestaurantById(dish.restaurantId);
   const inCart = state.cart.find((item) => item.id === dish.id);
+  const [imgSrc, setImgSrc] = useState(dish.image);
 
   const handleAdd = (e) => {
     e.stopPropagation();
@@ -25,7 +29,7 @@ export default function DishCard({ dish, delay = 0 }) {
   };
 
   const tag = dish.tags?.[0];
-  const tagStyle = tagColors[tag] || 'bg-text-muted/10 text-text-secondary border-text-muted/20';
+  const style = tagStyles[tag];
 
   return (
     <div
@@ -36,16 +40,20 @@ export default function DishCard({ dish, delay = 0 }) {
       {/* Image */}
       <div className="relative h-44 overflow-hidden bg-bg-secondary">
         <img
-          src={dish.image}
+          src={imgSrc}
           alt={dish.name}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
+          onError={() => setImgSrc(FALLBACK)}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-bg-card/60 via-transparent to-transparent" />
 
-        {/* Tag */}
-        {tag && (
-          <div className={`absolute top-3 left-3 px-2.5 py-1 rounded-lg border text-[11px] font-display font-semibold tracking-wide ${tagStyle}`}>
+        {/* Tag — solid color, always visible */}
+        {tag && style && (
+          <div
+            className="absolute top-3 left-3 px-2.5 py-1 rounded-lg text-[11px] font-display font-bold tracking-wide shadow-md"
+            style={{ backgroundColor: style.bg, color: style.text }}
+          >
             {tag}
           </div>
         )}
@@ -53,7 +61,7 @@ export default function DishCard({ dish, delay = 0 }) {
         {/* Rating */}
         <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-lg glass">
           <Star size={11} className="text-accent-gold fill-accent-gold" />
-          <span className="text-[12px] font-display font-semibold text-text-primary">
+          <span className="text-[12px] font-display font-semibold text-white">
             {dish.rating}
           </span>
         </div>
@@ -66,7 +74,6 @@ export default function DishCard({ dish, delay = 0 }) {
         </h3>
         <p className="text-text-secondary text-xs font-body mb-3">{restaurant?.name}</p>
 
-        {/* Meta */}
         <div className="flex items-center gap-3 mb-4">
           <div className="flex items-center gap-1.5 text-text-muted">
             <Clock size={12} />
@@ -79,11 +86,8 @@ export default function DishCard({ dish, delay = 0 }) {
           </div>
         </div>
 
-        {/* Price + Add */}
         <div className="flex items-center justify-between">
-          <div>
-            <span className="font-display font-bold text-text-primary text-lg">₹{dish.price}</span>
-          </div>
+          <span className="font-display font-bold text-text-primary text-lg">₹{dish.price}</span>
           <button
             onClick={handleAdd}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-display font-semibold transition-all duration-200 ${
