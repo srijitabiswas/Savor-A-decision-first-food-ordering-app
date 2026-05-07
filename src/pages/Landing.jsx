@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, TrendingUp, ArrowRight, Zap } from 'lucide-react';
+import { Search, TrendingUp, ArrowRight, Zap, Tag } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { trendingSearches, cuisineCategories } from '../data/mockData';
 import PriceRangeSlider from '../components/PriceRangeSlider';
@@ -18,14 +18,21 @@ const LIVE_ORDERS = [
   'Someone in Rajarhat just ordered Tom Yum Soup',
 ];
 
+const OFFERS = [
+  { code: 'FIRST50', label: '50% off', desc: 'First order', color: '#C9A84C' },
+  { code: 'SAVOR20', label: '20% off', desc: 'Orders above ₹299', color: '#C9A84C' },
+  { code: 'BIRYANI15', label: '15% off', desc: 'All Biryani', color: '#C9A84C' },
+  { code: 'FREESHIP', label: 'Free delivery', desc: 'No minimum', color: '#C9A84C' },
+];
+
 export default function Landing() {
   const { state, dispatch } = useApp();
   const navigate = useNavigate();
-  const [inputValue, setInputValue]   = useState(state.searchQuery || '');
-  const [liveIndex, setLiveIndex]     = useState(0);
+  const [inputValue, setInputValue] = useState(state.searchQuery || '');
+  const [liveIndex, setLiveIndex] = useState(0);
   const [liveVisible, setLiveVisible] = useState(true);
+  const [copiedCode, setCopiedCode] = useState(null);
 
-  // Rotate live orders ticker
   useEffect(() => {
     const id = setInterval(() => {
       setLiveVisible(false);
@@ -57,19 +64,24 @@ export default function Landing() {
     navigate('/search');
   };
 
-  const isPriceFiltered =
-    state.priceRange.min > 0 || state.priceRange.max < 10000;
+  const handleCopyCode = (code) => {
+    navigator.clipboard.writeText(code).catch(() => {});
+    setCopiedCode(code);
+    setTimeout(() => setCopiedCode(null), 2000);
+  };
+
+  const isPriceFiltered = state.priceRange.min > 0 || state.priceRange.max < 10000;
 
   return (
     <div className="min-h-screen bg-bg-primary flex flex-col overflow-x-hidden">
       {/* Ambient glows */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-[-10%] left-[20%] w-[700px] h-[700px] bg-accent-purple/6 rounded-full blur-[120px]" />
+        <div className="absolute top-[-10%] left-[20%] w-[700px] h-[700px] bg-accent-purple/5 rounded-full blur-[120px]" />
         <div className="absolute bottom-[-5%] right-[10%] w-[500px] h-[500px] bg-accent-gold/4 rounded-full blur-[100px]" />
       </div>
 
       {/* Live order ticker */}
-      <div className="relative z-10 border-b border-border-subtle bg-bg-secondary/50 backdrop-blur-sm">
+      <div className="relative z-10 border-b border-border-subtle bg-bg-secondary/50 backdrop-blur-sm mt-16">
         <div className="max-w-6xl mx-auto px-6 py-2.5 flex items-center gap-3">
           <div className="flex items-center gap-1.5 flex-shrink-0">
             <span className="w-1.5 h-1.5 rounded-full bg-accent-purple animate-pulse" />
@@ -77,27 +89,51 @@ export default function Landing() {
               Live
             </span>
           </div>
-          <p
-            className={`text-text-muted text-xs font-body transition-opacity duration-300 ${
-              liveVisible ? 'opacity-100' : 'opacity-0'
-            }`}
-          >
+          <p className={`text-text-muted text-xs font-body transition-opacity duration-300 ${liveVisible ? 'opacity-100' : 'opacity-0'}`}>
             {LIVE_ORDERS[liveIndex]}
           </p>
         </div>
       </div>
 
+      {/* Offers strip — subtle, not primary */}
+      <div className="relative z-10 bg-bg-secondary/30 border-b border-border-subtle overflow-hidden">
+        <div className="max-w-6xl mx-auto px-6 py-2 flex items-center gap-2">
+          <Tag size={12} className="text-accent-gold flex-shrink-0" />
+          <span className="text-[11px] font-display font-medium text-accent-gold uppercase tracking-wider flex-shrink-0">
+            Offers
+          </span>
+          <div className="flex gap-2 overflow-x-auto scrollbar-none">
+            {OFFERS.map((offer) => (
+              <button
+                key={offer.code}
+                onClick={() => handleCopyCode(offer.code)}
+                className="flex items-center gap-2 px-3 py-1 rounded-lg border border-dashed border-accent-gold/30 bg-accent-purple/5 flex-shrink-0 hover:border-accent-gold/60 transition-all"
+              >
+                <span className="text-accent-gold font-display font-bold text-[11px]">
+                  {offer.label}
+                </span>
+                <span className="text-text-muted text-[11px] font-body">{offer.desc}</span>
+                <span className="text-[10px] font-display font-semibold text-text-muted border border-border-default rounded px-1.5 py-0.5 bg-bg-elevated">
+                  {copiedCode === offer.code ? '✓ Copied' : offer.code}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* Main content */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-16 relative z-10">
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 relative z-10">
+
         {/* Stats bar */}
         <div className="flex items-center gap-6 mb-10 animate-fade-in flex-wrap justify-center">
           {[
-            { value: '56',  label: 'Dishes' },
-            { value: '15',  label: 'Restaurants' },
-            { value: '18',  label: 'Cuisines' },
+            { value: '56', label: 'Dishes' },
+            { value: '15', label: 'Restaurants' },
+            { value: '18', label: 'Cuisines' },
             { value: '~22', label: 'Min avg delivery' },
           ].map(({ value, label }) => (
-            <div key={label} className="flex items-center gap-2 text-center">
+            <div key={label} className="flex items-center gap-2">
               <span className="font-display font-bold text-text-primary text-lg">{value}</span>
               <span className="text-text-muted text-xs font-body">{label}</span>
             </div>
@@ -144,14 +180,14 @@ export default function Landing() {
             />
             <button
               onClick={handleFind}
-              className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 px-4 py-2 bg-accent-purple rounded-xl text-white text-sm font-display font-semibold hover:bg-accent-purple-dim transition-all shadow-purple-sm active:scale-95"
+              className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 px-4 py-2 bg-accent-purple rounded-xl text-bg-primary text-sm font-display font-semibold hover:bg-accent-purple-dim transition-all shadow-purple-sm active:scale-95"
             >
               Find <ArrowRight size={14} />
             </button>
           </div>
         </div>
 
-        {/* Trending quick searches */}
+        {/* Trending */}
         <div
           className="w-full max-w-xl mb-10 anim-init animate-fade-up delay-300"
           style={{ animationFillMode: 'forwards' }}
@@ -175,7 +211,7 @@ export default function Landing() {
           </div>
         </div>
 
-        {/* Price range section */}
+        {/* Price range */}
         <div
           className="w-full max-w-xl mb-10 anim-init animate-fade-up delay-400"
           style={{ animationFillMode: 'forwards' }}
@@ -188,9 +224,7 @@ export default function Landing() {
               </div>
               {isPriceFiltered && (
                 <button
-                  onClick={() =>
-                    dispatch({ type: 'SET_PRICE_RANGE', payload: { min: 0, max: 10000 } })
-                  }
+                  onClick={() => dispatch({ type: 'SET_PRICE_RANGE', payload: { min: 0, max: 10000 } })}
                   className="text-xs text-accent-purple font-display hover:underline"
                 >
                   Reset
@@ -225,14 +259,14 @@ export default function Landing() {
           </div>
         </div>
 
-        {/* Main CTA */}
+        {/* CTA */}
         <div
           className="anim-init animate-fade-up delay-600"
           style={{ animationFillMode: 'forwards' }}
         >
           <button
             onClick={handleFind}
-            className="flex items-center gap-3 px-10 py-4 bg-accent-purple rounded-2xl text-white font-display font-semibold text-base hover:bg-accent-purple-dim transition-all duration-200 shadow-purple hover:scale-[1.02] active:scale-[0.98]"
+            className="flex items-center gap-3 px-10 py-4 bg-accent-purple rounded-2xl text-bg-primary font-display font-semibold text-base hover:bg-accent-purple-dim transition-all duration-200 shadow-purple hover:scale-[1.02] active:scale-[0.98]"
           >
             <Zap size={18} />
             Find my meal
