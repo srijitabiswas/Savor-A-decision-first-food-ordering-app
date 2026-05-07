@@ -5,13 +5,13 @@ import { useApp } from '../context/AppContext';
 import { getRestaurantById } from '../data/mockData';
 
 const tagStyles = {
-  'Best Seller': { bg: '#7C6CFF', text: '#fff' },
-  'High Rated':  { bg: '#D6C6A8', text: '#1A1D23' },
-  'Best Value':  { bg: '#10b981', text: '#fff' },
-  'Premium':     { bg: '#f43f5e', text: '#fff' },
-  'Quick Bite':  { bg: '#0ea5e9', text: '#fff' },
-  'Healthy':     { bg: '#14b8a6', text: '#fff' },
-  'Trending':    { bg: '#8b5cf6', text: '#fff' },
+  'Best Seller': { bg: '#F5C800', text: '#1A1A1A' },
+  'High Rated':  { bg: '#1A1A1A', text: '#F5C800' },
+  'Best Value':  { bg: '#16a34a', text: '#fff' },
+  'Premium':     { bg: '#7c3aed', text: '#fff' },
+  'Quick Bite':  { bg: '#0284c7', text: '#fff' },
+  'Healthy':     { bg: '#0d9488', text: '#fff' },
+  'Trending':    { bg: '#ea580c', text: '#fff' },
 };
 
 const FALLBACK = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80';
@@ -33,7 +33,7 @@ export default function DishCard({ dish, delay = 0 }) {
 
   return (
     <div
-      className="anim-init animate-fade-up group cursor-pointer bg-bg-card border border-border-default rounded-2xl overflow-hidden hover:border-accent-purple/30 hover:shadow-card-hover transition-all duration-300"
+      className="anim-init animate-fade-up group cursor-pointer bg-bg-card border border-border-default rounded-2xl overflow-hidden hover:border-accent-purple/40 hover:shadow-card-hover transition-all duration-300"
       style={{ animationDelay: `${delay}ms`, animationFillMode: 'forwards' }}
       onClick={() => navigate(`/dish/${dish.id}`)}
     >
@@ -46,22 +46,19 @@ export default function DishCard({ dish, delay = 0 }) {
           loading="lazy"
           onError={() => setImgSrc(FALLBACK)}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-bg-card/60 via-transparent to-transparent" />
-
-        {/* Tag — solid color, always visible */}
+        {/* Tag */}
         {tag && style && (
           <div
-            className="absolute top-3 left-3 px-2.5 py-1 rounded-lg text-[11px] font-display font-bold tracking-wide shadow-md"
+            className="absolute top-3 left-3 px-2.5 py-1 rounded-lg text-[11px] font-display font-bold tracking-wide shadow-sm"
             style={{ backgroundColor: style.bg, color: style.text }}
           >
             {tag}
           </div>
         )}
-
         {/* Rating */}
-        <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-lg glass">
-          <Star size={11} className="text-accent-gold fill-accent-gold" />
-          <span className="text-[12px] font-display font-semibold text-white">
+        <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-lg bg-white/90 backdrop-blur-sm shadow-sm">
+          <Star size={11} className="text-yellow-400 fill-yellow-400" />
+          <span className="text-[12px] font-display font-bold text-gray-800">
             {dish.rating}
           </span>
         </div>
@@ -90,10 +87,10 @@ export default function DishCard({ dish, delay = 0 }) {
           <span className="font-display font-bold text-text-primary text-lg">₹{dish.price}</span>
           <button
             onClick={handleAdd}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-display font-semibold transition-all duration-200 ${
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-display font-bold transition-all duration-200 ${
               inCart
-                ? 'bg-accent-purple text-white shadow-purple-sm'
-                : 'bg-bg-elevated border border-border-default text-text-secondary hover:border-accent-purple/40 hover:text-accent-purple'
+                ? 'bg-accent-purple text-text-primary shadow-purple-sm'
+                : 'bg-bg-elevated border border-border-default text-text-secondary hover:border-accent-purple hover:bg-accent-purple/10 hover:text-text-primary'
             }`}
           >
             <Plus size={13} />

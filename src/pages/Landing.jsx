@@ -1,34 +1,54 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, TrendingUp, ArrowRight, Zap, Tag } from 'lucide-react';
+import {
+  Search, ArrowRight, Zap, Shield, Clock,
+  ThumbsUp, RefreshCw, Tag, ChevronRight,
+} from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { trendingSearches, cuisineCategories } from '../data/mockData';
+import { trendingSearches, cuisineCategories, dishes } from '../data/mockData';
 import PriceRangeSlider from '../components/PriceRangeSlider';
 
+// ── Offers data ────────────────────────────────────────────────────────────
+const OFFERS = [
+  { code: 'SAVE120', label: '50% OFF', sub: 'Up to ₹120 · Orders above ₹249', color: '#7C6CFF' },
+  { code: 'SAVOR100', label: 'FLAT ₹100 OFF', sub: 'Orders above ₹499', color: '#7C6CFF' },
+  { code: 'FOODIE40', label: '40% OFF', sub: 'Up to ₹150 · Orders above ₹349', color: '#7C6CFF' },
+];
+
+// ── Trust badges ───────────────────────────────────────────────────────────
+const TRUST = [
+  { icon: <Clock size={20} />, label: 'Fast delivery', sub: 'On-time or free' },
+  { icon: <ThumbsUp size={20} />, label: 'Top rated', sub: 'Quality you can trust' },
+  { icon: <Shield size={20} />, label: 'Safe & hygienic', sub: 'Food safety first' },
+  { icon: <RefreshCw size={20} />, label: 'Easy returns', sub: 'No hassle refunds' },
+];
+
+// ── Popular cuisine groups ─────────────────────────────────────────────────
+const CUISINE_GROUPS = [
+  { label: 'North Indian', emoji: '🍛', count: '12 dishes', query: 'curry' },
+  { label: 'Chinese', emoji: '🥡', count: '8 dishes', query: 'chinese' },
+  { label: 'Italian', emoji: '🍝', count: '8 dishes', query: 'pasta' },
+  { label: 'Biryani', emoji: '🍚', count: '4 dishes', query: 'biryani' },
+  { label: 'South Indian', emoji: '🥥', count: '4 dishes', query: 'dosa' },
+  { label: 'Japanese', emoji: '🍣', count: '3 dishes', query: 'sushi' },
+];
+
+// ── Live ticker ────────────────────────────────────────────────────────────
 const LIVE_ORDERS = [
   'Someone in Ballygunge just ordered Chicken Biryani',
   'Someone in Salt Lake just ordered Truffle Carbonara',
   'Someone in New Town just ordered Dragon Roll',
   'Someone in Park Street just ordered Seekh Kebab',
   'Someone in Alipore just ordered Masala Dosa',
-  'Someone in Jadavpur just ordered Smash Burger',
-  'Someone in Gariahat just ordered Chicken Kathi Roll',
-  'Someone in Howrah just ordered Rajasthani Thali',
-  'Someone in Camac Street just ordered Lava Cake',
-  'Someone in Rajarhat just ordered Tom Yum Soup',
 ];
 
-const OFFERS = [
-  { code: 'FIRST50', label: '50% off', desc: 'First order', color: '#C9A84C' },
-  { code: 'SAVOR20', label: '20% off', desc: 'Orders above ₹299', color: '#C9A84C' },
-  { code: 'BIRYANI15', label: '15% off', desc: 'All Biryani', color: '#C9A84C' },
-  { code: 'FREESHIP', label: 'Free delivery', desc: 'No minimum', color: '#C9A84C' },
-];
+// ── Top picks (hardcoded best rated) ──────────────────────────────────────
+const TOP_PICK_IDS = ['d1', 'd32', 'd5', 'd48'];
 
 export default function Landing() {
   const { state, dispatch } = useApp();
   const navigate = useNavigate();
-  const [inputValue, setInputValue] = useState(state.searchQuery || '');
+  const [inputValue, setInputValue] = useState('');
   const [liveIndex, setLiveIndex] = useState(0);
   const [liveVisible, setLiveVisible] = useState(true);
   const [copiedCode, setCopiedCode] = useState(null);
@@ -44,238 +64,346 @@ export default function Landing() {
     return () => clearInterval(id);
   }, []);
 
-  const handleFind = () => {
-    dispatch({ type: 'SET_SEARCH_QUERY', payload: inputValue.trim() });
+  const handleFind = (query = inputValue) => {
+    dispatch({ type: 'SET_SEARCH_QUERY', payload: query.trim() });
     navigate('/search');
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') handleFind();
-  };
-
-  const handleTrend = (term) => {
-    setInputValue(term);
-    dispatch({ type: 'SET_SEARCH_QUERY', payload: term });
-    navigate('/search');
-  };
-
-  const handleCategory = (cat) => {
-    dispatch({ type: 'SET_SEARCH_QUERY', payload: cat.label });
-    navigate('/search');
-  };
-
-  const handleCopyCode = (code) => {
+  const handleCopy = (code) => {
     navigator.clipboard.writeText(code).catch(() => {});
     setCopiedCode(code);
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
-  const isPriceFiltered = state.priceRange.min > 0 || state.priceRange.max < 10000;
+  const topPicks = TOP_PICK_IDS.map((id) => dishes.find((d) => d.id === id)).filter(Boolean);
 
   return (
-    <div className="min-h-screen bg-bg-primary flex flex-col overflow-x-hidden">
-      {/* Ambient glows */}
+    <div className="min-h-screen bg-bg-primary">
+
+      {/* ── Ambient glow ── */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-[-10%] left-[20%] w-[700px] h-[700px] bg-accent-purple/5 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-5%] right-[10%] w-[500px] h-[500px] bg-accent-gold/4 rounded-full blur-[100px]" />
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-accent-purple/5 rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent-gold/3 rounded-full blur-[100px]" />
       </div>
 
-      {/* Live order ticker */}
-      <div className="relative z-10 border-b border-border-subtle bg-bg-secondary/50 backdrop-blur-sm mt-16">
-        <div className="max-w-6xl mx-auto px-6 py-2.5 flex items-center gap-3">
+      {/* ── Live ticker ── */}
+      <div className="relative z-10 border-b border-border-subtle bg-bg-secondary/60 backdrop-blur-sm mt-16">
+        <div className="max-w-6xl mx-auto px-6 py-2 flex items-center gap-3">
           <div className="flex items-center gap-1.5 flex-shrink-0">
             <span className="w-1.5 h-1.5 rounded-full bg-accent-purple animate-pulse" />
-            <span className="text-[11px] font-display font-semibold text-accent-purple uppercase tracking-wider">
-              Live
-            </span>
+            <span className="text-[10px] font-display font-bold text-accent-purple uppercase tracking-widest">Live</span>
           </div>
-          <p className={`text-text-muted text-xs font-body transition-opacity duration-300 ${liveVisible ? 'opacity-100' : 'opacity-0'}`}>
+          <p className={`text-text-muted text-xs font-body transition-opacity duration-300 truncate ${liveVisible ? 'opacity-100' : 'opacity-0'}`}>
             {LIVE_ORDERS[liveIndex]}
           </p>
         </div>
       </div>
 
-      {/* Offers strip — subtle, not primary */}
-      <div className="relative z-10 bg-bg-secondary/30 border-b border-border-subtle overflow-hidden">
-        <div className="max-w-6xl mx-auto px-6 py-2 flex items-center gap-2">
-          <Tag size={12} className="text-accent-gold flex-shrink-0" />
-          <span className="text-[11px] font-display font-medium text-accent-gold uppercase tracking-wider flex-shrink-0">
-            Offers
-          </span>
-          <div className="flex gap-2 overflow-x-auto scrollbar-none">
-            {OFFERS.map((offer) => (
-              <button
-                key={offer.code}
-                onClick={() => handleCopyCode(offer.code)}
-                className="flex items-center gap-2 px-3 py-1 rounded-lg border border-dashed border-accent-gold/30 bg-accent-purple/5 flex-shrink-0 hover:border-accent-gold/60 transition-all"
-              >
-                <span className="text-accent-gold font-display font-bold text-[11px]">
-                  {offer.label}
-                </span>
-                <span className="text-text-muted text-[11px] font-body">{offer.desc}</span>
-                <span className="text-[10px] font-display font-semibold text-text-muted border border-border-default rounded px-1.5 py-0.5 bg-bg-elevated">
-                  {copiedCode === offer.code ? '✓ Copied' : offer.code}
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+      <div className="max-w-6xl mx-auto px-6 relative z-10">
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 relative z-10">
+        {/* ══════════════════════════════════════════
+            SECTION 1 — HERO
+            Goal: make user search immediately
+        ══════════════════════════════════════════ */}
+        <div className="pt-14 pb-12 flex flex-col lg:flex-row items-center gap-10">
 
-        {/* Stats bar */}
-        <div className="flex items-center gap-6 mb-10 animate-fade-in flex-wrap justify-center">
-          {[
-            { value: '56', label: 'Dishes' },
-            { value: '15', label: 'Restaurants' },
-            { value: '18', label: 'Cuisines' },
-            { value: '~22', label: 'Min avg delivery' },
-          ].map(({ value, label }) => (
-            <div key={label} className="flex items-center gap-2">
-              <span className="font-display font-bold text-text-primary text-lg">{value}</span>
-              <span className="text-text-muted text-xs font-body">{label}</span>
+          {/* Left — headline + search */}
+          <div className="flex-1 max-w-xl">
+
+            {/* Stats */}
+            <div className="flex items-center gap-5 mb-8 flex-wrap">
+              {[
+                { value: '56', label: 'Dishes' },
+                { value: '15', label: 'Restaurants' },
+                { value: '18', label: 'Cuisines' },
+                { value: '~22min', label: 'Avg delivery' },
+              ].map(({ value, label }) => (
+                <div key={label}>
+                  <span className="font-display font-bold text-text-primary text-lg block leading-none">{value}</span>
+                  <span className="text-text-muted text-[11px] font-body">{label}</span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        {/* Headline */}
-        <h1
-          className="font-display font-bold text-center leading-[1.1] mb-4 anim-init animate-fade-up"
-          style={{ animationFillMode: 'forwards' }}
-        >
-          <span className="text-[clamp(2.4rem,6vw,5rem)] text-text-primary block">
-            What do you
-          </span>
-          <span className="text-[clamp(2.4rem,6vw,5rem)] gradient-text block">
-            want to eat?
-          </span>
-        </h1>
+            {/* Headline */}
+            <h1 className="font-display font-bold leading-[1.05] mb-5">
+              <span className="text-[clamp(2.6rem,5vw,4.2rem)] text-text-primary block">
+                What do you
+              </span>
+              <span className="text-[clamp(2.6rem,5vw,4.2rem)] gradient-text block">
+                want to eat?
+              </span>
+            </h1>
 
-        <p
-          className="text-text-secondary text-base sm:text-lg text-center max-w-md mb-10 font-body anim-init animate-fade-up delay-100"
-          style={{ animationFillMode: 'forwards' }}
-        >
-          Tell us your craving and budget. We'll surface the best dish — no scrolling, no guesswork.
-        </p>
+            <p className="text-text-secondary text-base font-body leading-relaxed mb-8 max-w-sm">
+              Tell us your craving and budget. We'll surface the best dish — no scrolling, no guesswork.
+            </p>
 
-        {/* Search bar */}
-        <div
-          className="w-full max-w-xl mb-5 anim-init animate-fade-up delay-200"
-          style={{ animationFillMode: 'forwards' }}
-        >
-          <div className="relative group">
-            <Search
-              size={20}
-              className="absolute left-5 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-accent-purple transition-colors duration-200"
-            />
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="biryani, wrap, dosa, pasta..."
-              className="w-full bg-bg-secondary border border-border-default rounded-2xl pl-14 pr-36 py-4 text-text-primary font-body text-base placeholder:text-text-muted focus:outline-none focus:border-accent-purple/60 focus:shadow-purple transition-all duration-200"
-            />
-            <button
-              onClick={handleFind}
-              className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 px-4 py-2 bg-accent-purple rounded-xl text-bg-primary text-sm font-display font-semibold hover:bg-accent-purple-dim transition-all shadow-purple-sm active:scale-95"
-            >
-              Find <ArrowRight size={14} />
-            </button>
-          </div>
-        </div>
-
-        {/* Trending */}
-        <div
-          className="w-full max-w-xl mb-10 anim-init animate-fade-up delay-300"
-          style={{ animationFillMode: 'forwards' }}
-        >
-          <div className="flex items-center gap-2 mb-3 justify-center">
-            <TrendingUp size={13} className="text-text-muted" />
-            <span className="text-text-muted text-xs font-display uppercase tracking-widest">
-              Trending now
-            </span>
-          </div>
-          <div className="flex flex-wrap gap-2 justify-center">
-            {trendingSearches.map((term) => (
+            {/* ── SEARCH BAR — Primary action ── */}
+            <div className="relative group mb-4">
+              <Search size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-accent-purple transition-colors" />
+              <input
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleFind()}
+                placeholder="Search for biryani, pizza, momos..."
+                className="w-full bg-bg-secondary border border-border-default rounded-2xl pl-14 pr-32 py-4 text-text-primary font-body text-base placeholder:text-text-muted focus:outline-none focus:border-accent-purple/60 transition-all"
+              />
               <button
-                key={term}
-                onClick={() => handleTrend(term)}
-                className="px-3.5 py-1.5 rounded-xl bg-bg-elevated border border-border-default text-text-muted text-xs font-body hover:border-accent-purple/35 hover:text-text-secondary hover:bg-bg-card transition-all duration-200"
+                onClick={() => handleFind()}
+                className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 px-5 py-2.5 bg-accent-purple rounded-xl text-white text-sm font-display font-bold hover:bg-accent-purple-dim transition-all shadow-purple-sm active:scale-95"
               >
-                {term}
+                Find <ArrowRight size={14} />
               </button>
-            ))}
-          </div>
-        </div>
+            </div>
 
-        {/* Price range */}
-        <div
-          className="w-full max-w-xl mb-10 anim-init animate-fade-up delay-400"
-          style={{ animationFillMode: 'forwards' }}
-        >
-          <div className="bg-bg-secondary rounded-2xl border border-border-default p-6">
-            <div className="flex items-center justify-between mb-5">
-              <div>
-                <p className="font-display font-semibold text-text-primary text-sm">Budget range</p>
-                <p className="text-text-muted text-xs mt-0.5">Drag to set your comfortable price</p>
-              </div>
-              {isPriceFiltered && (
+            {/* Trending chips */}
+            <div className="flex flex-wrap gap-2 items-center">
+              <span className="text-text-muted text-xs font-display uppercase tracking-widest">Trending:</span>
+              {trendingSearches.slice(0, 6).map((term) => (
                 <button
-                  onClick={() => dispatch({ type: 'SET_PRICE_RANGE', payload: { min: 0, max: 10000 } })}
-                  className="text-xs text-accent-purple font-display hover:underline"
+                  key={term}
+                  onClick={() => handleFind(term)}
+                  className="px-3 py-1.5 rounded-xl bg-bg-elevated border border-border-default text-text-secondary text-xs font-body hover:border-accent-purple/40 hover:text-text-primary transition-all"
                 >
-                  Reset
+                  {term}
                 </button>
-              )}
+              ))}
             </div>
+          </div>
+
+          {/* Right — hero food image */}
+          <div className="flex-shrink-0 w-full max-w-xs lg:max-w-sm relative hidden md:block">
+            <div className="relative w-full aspect-square rounded-3xl overflow-hidden shadow-card-hover">
+              <img
+                src="https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=600&q=80"
+                alt="Delicious food"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-bg-primary/60 via-transparent to-transparent" />
+              {/* Floating badge */}
+              <div className="absolute bottom-4 left-4 right-4 glass rounded-2xl px-4 py-3 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-accent-purple flex items-center justify-center flex-shrink-0">
+                  <Zap size={18} className="text-white" />
+                </div>
+                <div>
+                  <p className="font-display font-bold text-text-primary text-sm">Decision-first</p>
+                  <p className="text-text-muted text-xs font-body">We pick the best for your budget</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ══════════════════════════════════════════
+            DIVIDER
+        ══════════════════════════════════════════ */}
+        <div className="border-t border-border-subtle mb-12" />
+
+        {/* ══════════════════════════════════════════
+            SECTION 2 — BUDGET
+            Goal: let user set price comfort zone
+        ══════════════════════════════════════════ */}
+        <div className="mb-12">
+          <div className="flex items-end justify-between mb-6">
+            <div>
+              <h2 className="font-display font-bold text-text-primary text-xl mb-1">Set your budget</h2>
+              <p className="text-text-muted text-sm font-body">Drag to set your comfortable price range</p>
+            </div>
+            {(state.priceRange.min > 0 || state.priceRange.max < 10000) && (
+              <button
+                onClick={() => dispatch({ type: 'SET_PRICE_RANGE', payload: { min: 0, max: 10000 } })}
+                className="text-xs text-accent-purple font-display hover:underline"
+              >
+                Reset
+              </button>
+            )}
+          </div>
+          <div className="bg-bg-secondary rounded-2xl border border-border-default p-6">
             <PriceRangeSlider />
           </div>
         </div>
 
-        {/* Browse by cuisine */}
-        <div
-          className="w-full max-w-4xl mb-10 anim-init animate-fade-up delay-500"
-          style={{ animationFillMode: 'forwards' }}
-        >
-          <p className="text-text-muted text-xs font-display font-medium uppercase tracking-widest mb-4 text-center">
-            Or browse by cuisine
-          </p>
-          <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-none">
-            {cuisineCategories.filter((c) => c.id !== 'all').map((cat) => (
+        {/* ══════════════════════════════════════════
+            SECTION 3 — OFFERS
+            Goal: secondary benefit, not primary
+        ══════════════════════════════════════════ */}
+        <div className="mb-12">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h2 className="font-display font-bold text-text-primary text-xl mb-1">Best offers for you</h2>
+              <p className="text-text-muted text-sm font-body">Tap to copy code · Applied at checkout</p>
+            </div>
+            <Tag size={16} className="text-text-muted" />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {OFFERS.map((offer) => (
               <button
-                key={cat.id}
-                onClick={() => handleCategory(cat)}
-                className="flex-shrink-0 flex flex-col items-center gap-2 px-4 py-3 rounded-2xl bg-bg-elevated border border-border-default hover:border-accent-purple/35 hover:bg-bg-card transition-all duration-200 min-w-[72px]"
+                key={offer.code}
+                onClick={() => handleCopy(offer.code)}
+                className="text-left p-4 bg-bg-secondary rounded-2xl border border-border-default hover:border-accent-purple/40 transition-all group"
               >
-                <span className="text-2xl">{cat.emoji}</span>
-                <span className="text-[11px] font-display font-medium text-text-secondary whitespace-nowrap">
-                  {cat.label}
-                </span>
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <span className="font-display font-bold text-accent-purple text-base">{offer.label}</span>
+                  <span className={`text-[10px] font-display font-bold px-2 py-1 rounded-lg border transition-all flex-shrink-0 ${
+                    copiedCode === offer.code
+                      ? 'bg-accent-purple text-white border-accent-purple'
+                      : 'bg-bg-elevated border-border-default text-text-muted group-hover:border-accent-purple/40 group-hover:text-text-secondary'
+                  }`}>
+                    {copiedCode === offer.code ? '✓ Copied!' : offer.code}
+                  </span>
+                </div>
+                <p className="text-text-muted text-xs font-body">{offer.sub}</p>
               </button>
             ))}
           </div>
         </div>
 
-        {/* CTA */}
-        <div
-          className="anim-init animate-fade-up delay-600"
-          style={{ animationFillMode: 'forwards' }}
-        >
-          <button
-            onClick={handleFind}
-            className="flex items-center gap-3 px-10 py-4 bg-accent-purple rounded-2xl text-bg-primary font-display font-semibold text-base hover:bg-accent-purple-dim transition-all duration-200 shadow-purple hover:scale-[1.02] active:scale-[0.98]"
-          >
-            <Zap size={18} />
-            Find my meal
-          </button>
+        {/* ══════════════════════════════════════════
+            SECTION 4 — POPULAR CUISINES
+            Goal: browse by cuisine type
+        ══════════════════════════════════════════ */}
+        <div className="mb-12">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h2 className="font-display font-bold text-text-primary text-xl mb-1">Popular cuisines</h2>
+              <p className="text-text-muted text-sm font-body">Tap a cuisine to explore dishes</p>
+            </div>
+            <button
+              onClick={() => handleFind('')}
+              className="flex items-center gap-1 text-accent-purple text-xs font-display hover:underline"
+            >
+              See all <ChevronRight size={13} />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+            {CUISINE_GROUPS.map((cuisine) => (
+              <button
+                key={cuisine.label}
+                onClick={() => handleFind(cuisine.query)}
+                className="flex flex-col items-center gap-2 p-4 bg-bg-secondary rounded-2xl border border-border-default hover:border-accent-purple/40 hover:bg-bg-elevated transition-all group"
+              >
+                <span className="text-3xl group-hover:scale-110 transition-transform duration-200">
+                  {cuisine.emoji}
+                </span>
+                <span className="font-display font-semibold text-text-primary text-xs text-center leading-tight">
+                  {cuisine.label}
+                </span>
+                <span className="text-text-muted text-[10px] font-body">{cuisine.count}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
-        <p className="text-text-muted text-xs mt-6 font-body">
-          No account needed · No endless scrolling · Just great food
-        </p>
+        {/* ══════════════════════════════════════════
+            SECTION 5 — TOP PICKS
+            Goal: social proof + reduce decision effort
+        ══════════════════════════════════════════ */}
+        <div className="mb-12">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h2 className="font-display font-bold text-text-primary text-xl mb-1">Top picks for you</h2>
+              <p className="text-text-muted text-sm font-body">Curated dishes you'll love</p>
+            </div>
+            <button
+              onClick={() => handleFind('')}
+              className="flex items-center gap-1 text-accent-purple text-xs font-display hover:underline"
+            >
+              See all <ChevronRight size={13} />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {topPicks.map((dish) => (
+              <button
+                key={dish.id}
+                onClick={() => navigate(`/dish/${dish.id}`)}
+                className="text-left bg-bg-secondary rounded-2xl border border-border-default overflow-hidden hover:border-accent-purple/40 hover:shadow-card-hover transition-all group"
+              >
+                <div className="relative h-32 overflow-hidden">
+                  <img
+                    src={dish.image}
+                    alt={dish.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80'; }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-bg-secondary/80 via-transparent to-transparent" />
+                  <div className="absolute top-2 left-2 flex items-center gap-1 bg-accent-purple/90 px-2 py-0.5 rounded-lg">
+                    <span className="text-white text-[10px] font-display font-bold">★ {dish.rating}</span>
+                  </div>
+                  <div className="absolute top-2 right-2 bg-black/50 backdrop-blur-sm px-2 py-0.5 rounded-lg">
+                    <span className="text-white text-[10px] font-body">{dish.deliveryTime}</span>
+                  </div>
+                </div>
+                <div className="p-3">
+                  <p className="font-display font-semibold text-text-primary text-xs leading-snug mb-0.5 line-clamp-1">
+                    {dish.name}
+                  </p>
+                  <p className="font-display font-bold text-accent-purple text-sm">₹{dish.price}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ══════════════════════════════════════════
+            SECTION 6 — DECIDE FOR ME
+            Goal: remove all decision anxiety
+        ══════════════════════════════════════════ */}
+        <div className="mb-12">
+          <div className="bg-bg-secondary rounded-3xl border border-border-default p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-accent-purple/15 border border-accent-purple/30 flex items-center justify-center flex-shrink-0">
+                <Zap size={24} className="text-accent-purple" />
+              </div>
+              <div>
+                <h3 className="font-display font-bold text-text-primary text-lg mb-1">Can't decide?</h3>
+                <p className="text-text-muted text-sm font-body">Let us surprise you with the best match for your budget.</p>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                dispatch({ type: 'SET_SEARCH_QUERY', payload: '' });
+                navigate('/search');
+              }}
+              className="flex items-center gap-2.5 px-7 py-3.5 bg-accent-purple rounded-2xl text-white font-display font-bold text-sm hover:bg-accent-purple-dim transition-all shadow-purple hover:scale-[1.02] active:scale-[0.98] flex-shrink-0"
+            >
+              <Zap size={16} />
+              Decide for me
+            </button>
+          </div>
+        </div>
+
+        {/* ══════════════════════════════════════════
+            SECTION 7 — TRUST BADGES
+            Goal: reassure before leaving page
+        ══════════════════════════════════════════ */}
+        <div className="border-t border-border-subtle py-10 mb-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+            {TRUST.map((item) => (
+              <div key={item.label} className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-bg-elevated border border-border-default flex items-center justify-center flex-shrink-0 text-accent-purple">
+                  {item.icon}
+                </div>
+                <div>
+                  <p className="font-display font-semibold text-text-primary text-sm">{item.label}</p>
+                  <p className="text-text-muted text-xs font-body">{item.sub}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Footer note */}
+        <div className="text-center pb-8">
+          <p className="text-text-muted text-xs font-body">
+            No account needed · No endless scrolling · Just great food
+          </p>
+        </div>
+
       </div>
     </div>
   );

@@ -5,27 +5,27 @@ export default {
     extend: {
       colors: {
         bg: {
-          primary: '#0F0D0B',
-          secondary: '#1A1612',
-          card: '#211E19',
-          elevated: '#2A2520',
+          primary: '#FAFAF8',
+          secondary: '#F2F1EE',
+          card: '#FFFFFF',
+          elevated: '#EEEDE9',
         },
         accent: {
-          purple: '#C9A84C',
-          'purple-dim': '#A8873A',
-          'purple-glow': 'rgba(201,168,76,0.15)',
-          gold: '#E8C97A',
-          'gold-dim': '#C9A84C',
+          purple: '#F5C800',
+          'purple-dim': '#D4A900',
+          'purple-glow': 'rgba(245,200,0,0.15)',
+          gold: '#D4A900',
+          'gold-dim': '#B38F00',
         },
         text: {
-          primary: '#F0EBE1',
-          secondary: '#9E9488',
-          muted: '#5C5650',
+          primary: '#1A1A1A',
+          secondary: '#555550',
+          muted: '#999994',
         },
         border: {
-          default: 'rgba(255,255,255,0.07)',
-          subtle: 'rgba(255,255,255,0.04)',
-          accent: 'rgba(201,168,76,0.3)',
+          default: 'rgba(0,0,0,0.08)',
+          subtle: 'rgba(0,0,0,0.04)',
+          accent: 'rgba(245,200,0,0.4)',
         },
       },
       fontFamily: {
@@ -38,10 +38,10 @@ export default {
         '3xl': '28px',
       },
       boxShadow: {
-        card: '0 4px 24px rgba(0,0,0,0.5)',
-        'card-hover': '0 8px 40px rgba(0,0,0,0.7)',
-        purple: '0 0 32px rgba(201,168,76,0.2)',
-        'purple-sm': '0 0 16px rgba(201,168,76,0.15)',
+        card: '0 2px 16px rgba(0,0,0,0.08)',
+        'card-hover': '0 8px 32px rgba(0,0,0,0.14)',
+        purple: '0 0 32px rgba(245,200,0,0.25)',
+        'purple-sm': '0 0 16px rgba(245,200,0,0.2)',
       },
       backdropBlur: { xs: '4px' },
       animation: {
