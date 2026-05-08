@@ -54,11 +54,15 @@ function MiniCard({ dish, delay = 0, highlight = false }) {
       {/* Image */}
       <div className="relative h-40 overflow-hidden bg-bg-secondary">
         <img
-          src={dish.image}
-          alt={dish.name}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          loading="lazy"
-        />
+  src={dish.image}
+  alt={dish.name}
+  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+  loading="lazy"
+  onError={(e) => {
+    e.target.onerror = null;
+    e.target.src = 'https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=600&q=80';
+  }}
+/>
         <div className="absolute inset-0 bg-gradient-to-t from-bg-card/70 via-transparent to-transparent" />
         {tag && (
           <span className={`absolute top-3 left-3 px-2.5 py-1 rounded-lg border text-[11px] font-display font-semibold tracking-wide ${tagStyle}`}>
@@ -121,10 +125,14 @@ function HeroCard({ dish }) {
       {/* Background image */}
       <div className="relative h-64 sm:h-80 overflow-hidden">
         <img
-          src={dish.image}
-          alt={dish.name}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-        />
+  src={dish.image}
+  alt={dish.name}
+  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+  onError={(e) => {
+    e.target.onerror = null;
+    e.target.src = 'https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=600&q=80';
+  }}
+/>
         <div className="absolute inset-0 bg-gradient-to-t from-bg-card via-bg-card/50 to-transparent" />
 
         {/* Best Match badge */}

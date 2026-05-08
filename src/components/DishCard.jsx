@@ -14,7 +14,7 @@ const tagStyles = {
   'Trending':    { bg: '#ea580c', text: '#fff' },
 };
 
-const FALLBACK = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80';
+const FALLBACK = 'https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=600&q=80';
 
 export default function DishCard({ dish, delay = 0 }) {
   const navigate = useNavigate();
