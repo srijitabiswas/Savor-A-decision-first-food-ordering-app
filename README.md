@@ -124,7 +124,7 @@ Savor aims to:
 
 ## 🔗 Live Demo
 
-👉 [https://astonishing-pie-ab5054.netlify.app/](https://astonishing-pie-ab5054.netlify.app/)
+👉 [https://astonishing-pie-ab5054.netlify.app/](https://savor-decision-first.netlify.app/)
 
 ---
 
