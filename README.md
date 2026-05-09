@@ -4,22 +4,23 @@
 
 ## 🚀 Overview
 
-Most food delivery apps optimize for **engagement and scrolling**, not **decision-making**.
+Most food delivery apps optimize for engagement and endless scrolling instead of helping users make fast decisions.
 
-Users open the app hungry… and end up overwhelmed.
+Users open the app hungry, but spend more time browsing than ordering.
 
-**Savor** reimagines food ordering as a **decision-first experience** — helping users choose quickly, confidently, and without friction.
-
+Savor
+ reimagines food ordering as a decision-first experience — focused on reducing decision fatigue through curated recommendations, budget-based discovery, and AI-assisted food selection.
 ---
 
 ## 🎯 Problem
 
-Users struggle to decide what to order due to:
+Current food delivery platforms often create friction through:
 
-* too many choices
-* cluttered interfaces
-* promotion-heavy feeds
+* overwhelming numbers of choices
+* promotion-heavy interfaces
 * weak personalization
+* cluttered layouts
+* excessive scrolling before finding the right dish
 
 👉 Result: **decision fatigue + slow ordering**
 
@@ -28,6 +29,7 @@ Users struggle to decide what to order due to:
 ## 💡 Solution
 
 Savor focuses on **clarity over quantity**.
+Instead of showing hundreds of options immediately, the platform guides users toward the best possible choice based on intent, craving, budget, and convenience.
 
 ### Core Idea:
 
@@ -67,10 +69,38 @@ Each item shows:
 
 ---
 
-### 4. 🧠 Decision Support
+### 4. 🧠 AI-Powered “Decide For Me” Assistant
 
-* “Decide for me” feature
-* smart sorting (rating, price)
+Savor’s biggest differentiator is evolving the existing “Decide For Me” feature into a conversational AI food assistant.
+
+Instead of random recommendations, users can type natural cravings like:
+* “I want something spicy but light”
+* “Suggest comfort food under ₹250”
+* “I’m craving cheesy late-night food”
+* “Recommend something filling but healthy”
+
+The AI assistant will:
+* understand user intent and mood
+* analyze budget preferences
+* match cravings to dishes from available restaurants
+* surface highly relevant recommendations instantly
+
+Example Flow
+
+User Input:
+
+“I want something crispy, spicy, and affordable.”
+
+AI Output:
+* curated dish recommendation
+* restaurant name
+* delivery time
+* pricing
+* quick add-to-cart option
+Recommendations appear through a premium modal-style recommendation popup for a focused experience.
+
+Goal
+Transform food ordering from browsing menus to **conversational decision-making**.
 
 ---
 
@@ -104,6 +134,23 @@ UX analysis of existing apps revealed:
 
 ---
 
+
+## Current Status
+
+Completed
+* Premium landing page
+* Budget-first filtering
+* Curated recommendations
+* Restaurant discovery flow
+* Search experience
+* Responsive UI
+* Cart flow
+* Orders UI
+* Netlify deployment
+
+In Progress
+* AI conversational recommendation assistant
+
 ## 📊 Impact
 
 Savor aims to:
@@ -119,6 +166,9 @@ Savor aims to:
 * backend + real APIs
 * payments integration
 * personalized recommendations
+* custom food request system
+* order tracking
+* craving analysis
 
 ---
 
