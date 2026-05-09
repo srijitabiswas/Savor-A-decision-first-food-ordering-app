@@ -174,7 +174,7 @@ Savor aims to:
 
 ## 🔗 Live Demo
 
-👉 [https://savor-decision-first.netlify.app/](https://savor-decision-first.netlify.app/)
+👉 [https://savor-decision-first-food.netlify.app/](https://savor-decision-first-food.netlify.app/)
 
 ---
 
