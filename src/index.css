@@ -87,3 +87,14 @@ body {
   overflow: hidden; display: -webkit-box;
   -webkit-box-orient: vertical; -webkit-line-clamp: 2;
 }
+
+/* Remove ALL image gradient overlays globally */
+img {
+  display: block;
+}
+
+/* Prevent any accidental white overlay on images */
+.no-overlay img {
+  position: relative;
+  z-index: 1;
+}

@@ -63,7 +63,7 @@ function MiniCard({ dish, delay = 0, highlight = false }) {
     e.target.src = 'https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=600&q=80';
   }}
 />
-        <div className="absolute inset-0 bg-gradient-to-t from-bg-card/70 via-transparent to-transparent" />
+        
         {tag && (
           <span className={`absolute top-3 left-3 px-2.5 py-1 rounded-lg border text-[11px] font-display font-semibold tracking-wide ${tagStyle}`}>
             {tag}
@@ -133,7 +133,6 @@ function HeroCard({ dish }) {
     e.target.src = 'https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=600&q=80';
   }}
 />
-        <div className="absolute inset-0 bg-gradient-to-t from-bg-card via-bg-card/50 to-transparent" />
 
         {/* Best Match badge */}
         <div className="absolute top-4 left-4 flex items-center gap-2 px-3.5 py-2 rounded-xl bg-accent-purple/90 backdrop-blur-sm shadow-purple">

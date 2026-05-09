@@ -38,31 +38,32 @@ export default function DishCard({ dish, delay = 0 }) {
       onClick={() => navigate(`/dish/${dish.id}`)}
     >
       {/* Image */}
-      <div className="relative h-44 overflow-hidden bg-bg-secondary">
-        <img
-          src={imgSrc}
-          alt={dish.name}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          loading="lazy"
-          onError={() => setImgSrc(FALLBACK)}
-        />
-        {/* Tag */}
-        {tag && style && (
-          <div
-            className="absolute top-3 left-3 px-2.5 py-1 rounded-lg text-[11px] font-display font-bold tracking-wide shadow-sm"
-            style={{ backgroundColor: style.bg, color: style.text }}
-          >
-            {tag}
-          </div>
-        )}
-        {/* Rating */}
-        <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-lg bg-white/90 backdrop-blur-sm shadow-sm">
-          <Star size={11} className="text-yellow-400 fill-yellow-400" />
-          <span className="text-[12px] font-display font-bold text-gray-800">
-            {dish.rating}
-          </span>
-        </div>
-      </div>
+      {/* Image */}
+<div className="relative h-44 overflow-hidden bg-bg-secondary rounded-t-2xl">
+  <img
+    src={imgSrc}
+    alt={dish.name}
+    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+    loading="lazy"
+    onError={() => setImgSrc(FALLBACK)}
+  />
+  {/* Tag */}
+  {tag && style && (
+    <div
+      className="absolute top-3 left-3 px-2.5 py-1 rounded-lg text-[11px] font-display font-bold tracking-wide shadow-sm"
+      style={{ backgroundColor: style.bg, color: style.text }}
+    >
+      {tag}
+    </div>
+  )}
+  {/* Rating */}
+  <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-lg bg-white/90 backdrop-blur-sm shadow-sm border border-black/5">
+    <span className="text-yellow-500 text-[11px]">★</span>
+    <span className="text-[12px] font-display font-bold text-gray-800">
+      {dish.rating}
+    </span>
+  </div>
+</div>
 
       {/* Content */}
       <div className="p-4">

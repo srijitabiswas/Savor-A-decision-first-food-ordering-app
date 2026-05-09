@@ -181,7 +181,6 @@ export default function Landing() {
                 alt="Delicious food"
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-bg-primary/60 via-transparent to-transparent" />
               {/* Floating badge */}
               <div className="absolute bottom-4 left-4 right-4 glass rounded-2xl px-4 py-3 flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-accent-purple flex items-center justify-center flex-shrink-0">
@@ -330,7 +329,6 @@ export default function Landing() {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80'; }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-bg-secondary/80 via-transparent to-transparent" />
                   <div className="absolute top-2 left-2 flex items-center gap-1 bg-accent-purple/90 px-2 py-0.5 rounded-lg">
                     <span className="text-white text-[10px] font-display font-bold">★ {dish.rating}</span>
                   </div>
