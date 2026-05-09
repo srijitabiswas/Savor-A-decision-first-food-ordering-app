@@ -99,7 +99,7 @@ AI Output:
 * quick add-to-cart option
 Recommendations appear through a premium modal-style recommendation popup for a focused experience.
 
-Goal
+Goal:
 Transform food ordering from browsing menus to **conversational decision-making**.
 
 ---
