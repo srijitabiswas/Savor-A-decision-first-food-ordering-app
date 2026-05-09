@@ -265,10 +265,14 @@ function DecideModal({ dish, onClose, onAnother }) {
             <div className="flex gap-2">
               <button
   onClick={() => setCraveOpen(true)}
-  className="flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-display font-medium hover:border-accent-purple/40 hover:text-accent-purple transition-all group"
-  style={{ background: '#2D1B17', borderColor: 'rgba(212,160,23,0.3)', color: '#E6C36A' }}
+  className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-display font-semibold transition-all"
+  style={{
+    background: '#2D1B17',
+    border: '1.5px solid rgba(217,164,65,0.3)',
+    color: '#E6C36A',
+  }}
 >
-  <Sparkles size={15} style={{ color: '#D4A017' }} />
+  <Sparkles size={15} style={{ color: '#D9A441' }} />
   <span className="hidden sm:inline">Crave Assistant</span>
   <span className="sm:hidden">Crave</span>
 </button>
@@ -623,13 +627,18 @@ export default function SearchResults() {
 
       {/* ── Floating Decide For Me button (mobile) ─── */}
       {allResults.length > 1 && (
-        <button
-          onClick={handleDecide}
-          className="fixed bottom-6 right-6 z-30 flex items-center gap-2.5 px-5 py-3.5 bg-accent-purple rounded-2xl text-white font-display font-semibold text-sm shadow-purple hover:bg-accent-purple-dim transition-all hover:scale-105 active:scale-95 sm:hidden"
-        >
-          <Shuffle size={16} />
-          Decide for me
-        </button>
+       <button
+  onClick={() => setCraveOpen(true)}
+  className="fixed bottom-6 right-6 z-30 flex items-center gap-2.5 px-5 py-3.5 rounded-2xl text-sm font-display font-bold shadow-lg transition-all hover:scale-105 active:scale-95 sm:hidden"
+  style={{
+    background: '#2D1B17',
+    border: '1.5px solid rgba(217,164,65,0.4)',
+    color: '#E6C36A',
+  }}
+>
+  <Sparkles size={16} style={{ color: '#D9A441' }} />
+  Crave Assistant
+</button>
       )}
       {craveOpen && (
   <CraveAssistant onClose={() => setCraveOpen(false)} />

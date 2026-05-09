@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import BackButton from '../components/BackButton';
+import CraveAssistant from '../components/CraveAssistant';
 import { useNavigate } from 'react-router-dom';
 import {
   Search, ArrowRight, Zap, Shield, Clock,
-  ThumbsUp, RefreshCw, Tag, ChevronRight,
+  ThumbsUp, RefreshCw, Tag, ChevronRight, Sparkles
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { trendingSearches, cuisineCategories, dishes } from '../data/mockData';
@@ -53,6 +54,7 @@ export default function Landing() {
   const [liveIndex, setLiveIndex] = useState(0);
   const [liveVisible, setLiveVisible] = useState(true);
   const [copiedCode, setCopiedCode] = useState(null);
+  const [craveOpen, setCraveOpen] = useState(false);
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -158,6 +160,36 @@ export default function Landing() {
                 Find <ArrowRight size={14} />
               </button>
             </div>
+            
+            {/* CTA */}
+<div
+  className="anim-init animate-fade-up delay-600"
+  style={{ animationFillMode: 'forwards' }}
+>
+  {/* Primary CTA */}
+  <button
+    onClick={handleFind}
+    className="flex items-center gap-3 px-10 py-4 rounded-2xl text-base font-display font-bold hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 mb-4"
+    style={{ background: '#D9A441', color: '#1A0A00' }}
+  >
+    <Zap size={18} />
+    Find my meal
+  </button>
+
+  {/* Crave Assistant CTA */}
+  <button
+    onClick={() => setCraveOpen(true)}
+    className="flex items-center gap-3 px-8 py-3.5 rounded-2xl text-sm font-display font-semibold transition-all duration-200 mx-auto"
+    style={{
+      background: '#2D1B17',
+      border: '1.5px solid rgba(217,164,65,0.35)',
+      color: '#E6C36A',
+    }}
+  >
+    <Sparkles size={16} style={{ color: '#D9A441' }} />
+    Not sure? Ask Crave Assistant
+  </button>
+</div>
 
             {/* Trending chips */}
             <div className="flex flex-wrap gap-2 items-center">
@@ -419,6 +451,9 @@ export default function Landing() {
         </div>
 
       </div>
+      {craveOpen && <CraveAssistant onClose={() => setCraveOpen(false)} />}
+
     </div>
+
   );
 }

@@ -1,481 +1,570 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  X, Send, Zap, RotateCcw, Plus, Star, Clock,
-  Users, ShoppingBag, Sparkles, ChevronRight,
+  X, Zap, RotateCcw, Plus, Star, Clock,
+  Users, Sparkles, ChevronRight, ArrowRight,
+  ShoppingCart, Search,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { getRecommendations } from '../utils/craveEngine';
 import { useNavigate } from 'react-router-dom';
 
-// ── Color palette (chocolate + gold) ─────────────────────────────
-const C = {
-  bg:        '#2D1B17',
-  surface:   '#3A241F',
-  surfaceL:  '#4A2E28',
-  gold:      '#D4A017',
-  goldSoft:  '#E6C36A',
-  goldDim:   'rgba(212,160,23,0.15)',
-  textPri:   '#F8F5F2',
-  textSec:   '#C7B8A3',
-  textMuted: '#8A7A6A',
-  border:    'rgba(212,160,23,0.2)',
-  borderDim: 'rgba(255,255,255,0.07)',
-};
+// ── Design tokens ──────────────────────────────────────────────────
+const DARK = '#1C1008';
+const SURFACE = '#2A1A10';
+const SURFACE2 = '#362010';
+const GOLD = '#D9A441';
+const GOLD_DIM = 'rgba(217,164,65,0.15)';
+const GOLD_BORDER = 'rgba(217,164,65,0.25)';
+const TEXT_PRI = '#F5EFE6';
+const TEXT_SEC = '#C4AA88';
+const TEXT_MUTED = '#7A6A55';
 
-// ── Suggested prompt chips ────────────────────────────────────────
-const PROMPTS = [
-  { emoji: '🌶️', label: 'Spicy under ₹150' },
-  { emoji: '🧀', label: 'Cheesy comfort food' },
-  { emoji: '🥗', label: 'Healthy & light' },
-  { emoji: '🌙', label: 'Late night snack' },
-  { emoji: '💪', label: 'High protein meal' },
-  { emoji: '⚡', label: 'Under ₹100, quick' },
-  { emoji: '☔', label: 'Rainy day comfort' },
-  { emoji: '🍜', label: 'Spicy noodles' },
-  { emoji: '🫔', label: 'Juicy momos' },
-  { emoji: '🍕', label: 'Cheesy pizza' },
+// ── Quick prompts ──────────────────────────────────────────────────
+const QUICK_PROMPTS = [
+  { emoji: '🌶️', text: 'Something spicy under ₹200' },
+  { emoji: '🧀', text: 'Cheesy comfort food' },
+  { emoji: '🌿', text: 'Light and healthy meal' },
+  { emoji: '🌙', text: 'Late night snack' },
+  { emoji: '💪', text: 'High protein meal' },
+  { emoji: '⚡', text: 'Quick bite under ₹100' },
+  { emoji: '☔', text: 'Comfort food for rainy day' },
+  { emoji: '🥟', text: 'Juicy spicy momos' },
+  { emoji: '🍕', text: 'Cheesy pizza' },
+  { emoji: '🍜', text: 'Hot noodles' },
 ];
 
-// ── Recommendation card ────────────────────────────────────────────
-function RecommendationCard({ dish, label = 'We chose this for you', onAdd, onAnother, onViewMore, isMain = true }) {
-  if (!dish) return null;
-  const restaurant = dish.restaurant;
+// ── Dish card inside modal ─────────────────────────────────────────
+function DishCard({ dish, rank, onAdd, onView }) {
+  const [imgErr, setImgErr] = useState(false);
   const FALLBACK = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80';
+  const isTop = rank === 0;
 
   return (
     <div
-      className="rounded-2xl overflow-hidden animate-fade-in"
       style={{
-        background: C.surface,
-        border: isMain ? `1.5px solid ${C.gold}` : `1px solid ${C.borderDim}`,
-        boxShadow: isMain ? `0 0 40px rgba(212,160,23,0.12)` : 'none',
+        background: isTop ? SURFACE2 : SURFACE,
+        border: `1px solid ${isTop ? GOLD_BORDER : 'rgba(255,255,255,0.06)'}`,
+        borderRadius: 16,
+        overflow: 'hidden',
+        boxShadow: isTop ? `0 0 30px rgba(217,164,65,0.1)` : 'none',
       }}
     >
       {/* Image */}
-      <div className="relative h-40 overflow-hidden">
+      <div style={{ position: 'relative', height: isTop ? 160 : 120, overflow: 'hidden' }}>
         <img
-          src={dish.image || FALLBACK}
+          src={imgErr ? FALLBACK : (dish.image || FALLBACK)}
           alt={dish.name}
-          className="w-full h-full object-cover"
-          onError={(e) => { e.target.onerror = null; e.target.src = FALLBACK; }}
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          onError={() => setImgErr(true)}
         />
-        <div
-          className="absolute inset-0"
-          style={{ background: 'linear-gradient(to top, rgba(45,27,23,0.85) 0%, transparent 60%)' }}
-        />
+        {/* Gradient overlay on bottom */}
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0, height: '60%',
+          background: 'linear-gradient(to top, rgba(28,16,8,0.85) 0%, transparent 100%)',
+        }} />
 
-        {/* Badge */}
-        <div
-          className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold tracking-wide"
-          style={{ background: C.gold, color: '#1A0F0A' }}
-        >
-          <Sparkles size={11} />
-          {label}
-        </div>
+        {/* Top badge */}
+        {isTop && (
+          <div style={{
+            position: 'absolute', top: 10, left: 10,
+            background: GOLD, color: '#1A0A00',
+            padding: '3px 10px', borderRadius: 8,
+            fontSize: 11, fontWeight: 800, letterSpacing: 0.5,
+            display: 'flex', alignItems: 'center', gap: 4,
+          }}>
+            <Sparkles size={10} /> BEST MATCH
+          </div>
+        )}
+
+        {rank > 0 && (
+          <div style={{
+            position: 'absolute', top: 10, left: 10,
+            background: 'rgba(28,16,8,0.85)', color: TEXT_SEC,
+            padding: '3px 10px', borderRadius: 8,
+            fontSize: 10, fontWeight: 700,
+          }}>
+            Alt {rank}
+          </div>
+        )}
 
         {/* Rating */}
-        <div
-          className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-lg text-[12px] font-bold"
-          style={{ background: 'rgba(45,27,23,0.85)', color: C.goldSoft }}
-        >
-          <Star size={11} fill="currentColor" />
-          {dish.rating}
+        <div style={{
+          position: 'absolute', top: 10, right: 10,
+          background: 'rgba(28,16,8,0.85)',
+          padding: '3px 8px', borderRadius: 8,
+          display: 'flex', alignItems: 'center', gap: 4,
+          fontSize: 12, fontWeight: 700, color: GOLD,
+        }}>
+          <Star size={11} fill={GOLD} color={GOLD} /> {dish.rating}
+        </div>
+
+        {/* Bottom info */}
+        <div style={{
+          position: 'absolute', bottom: 10, left: 10, right: 10,
+          display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end',
+        }}>
+          <div>
+            <div style={{ color: TEXT_PRI, fontWeight: 700, fontSize: isTop ? 16 : 13, lineHeight: 1.2 }}>
+              {dish.name}
+            </div>
+            <div style={{ color: TEXT_SEC, fontSize: 11, marginTop: 2 }}>
+              {dish.restaurant?.name || ''}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="p-4">
-        <h3
-          className="font-display font-bold text-base leading-snug mb-0.5 line-clamp-1"
-          style={{ color: C.textPri }}
-        >
-          {dish.name}
-        </h3>
-        <p className="text-xs mb-3" style={{ color: C.textSec }}>
-          {restaurant?.name || 'Restaurant'}
-        </p>
-
-        {/* Meta */}
-        <div className="flex items-center gap-3 mb-4">
-          <span className="flex items-center gap-1 text-[11px]" style={{ color: C.textMuted }}>
+      {/* Body */}
+      <div style={{ padding: isTop ? '12px 14px 14px' : '10px 12px 12px' }}>
+        {/* Meta row */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: TEXT_MUTED, fontSize: 11 }}>
             <Clock size={11} /> {dish.deliveryTime}
           </span>
-          <span className="text-[11px]" style={{ color: C.textMuted }}>·</span>
-          <span className="flex items-center gap-1 text-[11px]" style={{ color: C.textMuted }}>
+          <span style={{ color: TEXT_MUTED, fontSize: 11 }}>·</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: TEXT_MUTED, fontSize: 11 }}>
             <Users size={11} /> {dish.quantity}
+          </span>
+          <span style={{ color: TEXT_MUTED, fontSize: 11 }}>·</span>
+          <span style={{ color: TEXT_MUTED, fontSize: 11 }}>
+            {dish.spiceLevel}
           </span>
         </div>
 
         {/* Price + actions */}
-        {isMain ? (
-          <div className="flex items-center justify-between gap-2">
-            <span className="font-display font-bold text-xl" style={{ color: C.goldSoft }}>
-              ₹{dish.price}
-            </span>
-            <div className="flex gap-2">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ color: GOLD, fontWeight: 800, fontSize: isTop ? 22 : 17 }}>
+            ₹{dish.price}
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {isTop && (
               <button
-                onClick={onAnother}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all"
+                onClick={() => onView(dish)}
                 style={{
-                  background: 'transparent',
-                  border: `1px solid ${C.border}`,
-                  color: C.textSec,
+                  padding: '7px 12px', borderRadius: 10, fontSize: 12, fontWeight: 600,
+                  background: 'transparent', border: `1px solid ${GOLD_BORDER}`,
+                  color: TEXT_SEC, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: 5,
                 }}
               >
-                <RotateCcw size={12} /> Another
+                View
               </button>
-              <button
-                onClick={() => onAdd(dish)}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all"
-                style={{ background: C.gold, color: '#1A0F0A' }}
-              >
-                <Plus size={13} /> Add to cart
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="flex items-center justify-between">
-            <span className="font-display font-bold text-lg" style={{ color: C.goldSoft }}>
-              ₹{dish.price}
-            </span>
+            )}
             <button
               onClick={() => onAdd(dish)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold"
-              style={{ background: C.goldDim, color: C.goldSoft, border: `1px solid ${C.border}` }}
+              style={{
+                padding: '7px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700,
+                background: GOLD, border: 'none', color: '#1A0A00',
+                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5,
+              }}
             >
-              <Plus size={12} /> Add
+              <Plus size={13} /> Add
             </button>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
 }
 
-// ── Main CraveAssistant component ─────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+// MAIN CRAVE ASSISTANT
+// ══════════════════════════════════════════════════════════════════
 export default function CraveAssistant({ onClose }) {
   const { dispatch } = useApp();
   const navigate = useNavigate();
   const inputRef = useRef(null);
+  const textareaRef = useRef(null);
 
+  const [phase, setPhase] = useState('input'); // 'input' | 'thinking' | 'results'
   const [query, setQuery] = useState('');
-  const [phase, setPhase] = useState('input'); // 'input' | 'results'
-  const [recommendations, setRecommendations] = useState([]);
-  const [usedIds, setUsedIds] = useState([]);
-  const [isThinking, setIsThinking] = useState(false);
+  const [results, setResults] = useState([]);
+  const [addedIds, setAddedIds] = useState([]);
 
+  // Focus input on mount
   useEffect(() => {
-    setTimeout(() => inputRef.current?.focus(), 300);
+    setTimeout(() => textareaRef.current?.focus(), 400);
   }, []);
 
-  const handleSubmit = (q = query) => {
+  // ── Analyze and show results ────────────────────────────────────
+  const analyze = (q = query) => {
     if (!q.trim()) return;
-    setQuery(q);
-    setIsThinking(true);
+    setQuery(q.trim());
+    setPhase('thinking');
 
-    // Simulate slight thinking delay for premium feel
+    // Simulated AI thinking delay — premium feel
     setTimeout(() => {
-      const results = getRecommendations(q, 3);
-      setRecommendations(results);
-      setUsedIds(results.map((d) => d.id));
+      const found = getRecommendations(q.trim(), 3);
+      setResults(found);
       setPhase('results');
-      setIsThinking(false);
-    }, 900);
+    }, 1100);
   };
 
-  const handleAnother = () => {
-    const newResults = getRecommendations(query, 6)
-      .filter((d) => !usedIds.includes(d.id));
-
-    if (newResults.length === 0) {
-      // Reshuffle from all
-      const fresh = getRecommendations(query, 3);
-      setRecommendations(fresh);
-      setUsedIds(fresh.map((d) => d.id));
-    } else {
-      const next = newResults.slice(0, 3);
-      setRecommendations(next);
-      setUsedIds((prev) => [...prev, ...next.map((d) => d.id)]);
-    }
-  };
-
+  // ── Add to cart ─────────────────────────────────────────────────
   const handleAdd = (dish) => {
     dispatch({ type: 'ADD_TO_CART', payload: dish });
-    onClose();
+    setAddedIds((prev) => [...prev, dish.id]);
+    // Brief feedback then close
+    setTimeout(() => onClose(), 800);
   };
 
-  const handleViewAll = () => {
+  // ── View dish detail ────────────────────────────────────────────
+  const handleView = (dish) => {
+    onClose();
+    navigate(`/dish/${dish.id}`);
+  };
+
+  // ── See all results ─────────────────────────────────────────────
+  const handleSeeAll = () => {
     dispatch({ type: 'SET_SEARCH_QUERY', payload: query });
     onClose();
     navigate('/search');
   };
 
+  // ── Try again ───────────────────────────────────────────────────
   const handleReset = () => {
     setPhase('input');
     setQuery('');
-    setRecommendations([]);
-    setUsedIds([]);
-    setTimeout(() => inputRef.current?.focus(), 100);
+    setResults([]);
+    setAddedIds([]);
+    setTimeout(() => textareaRef.current?.focus(), 100);
   };
 
   return (
     <>
-      {/* Overlay */}
+      {/* ── Backdrop ── */}
       <div
-        className="fixed inset-0 z-50 animate-fade-in"
-        style={{ background: 'rgba(20,10,8,0.75)', backdropFilter: 'blur(8px)' }}
         onClick={onClose}
+        style={{
+          position: 'fixed', inset: 0, zIndex: 50,
+          background: 'rgba(10,5,0,0.8)',
+          backdropFilter: 'blur(6px)',
+          WebkitBackdropFilter: 'blur(6px)',
+          animation: 'fadeIn 0.2s ease',
+        }}
       />
 
-      {/* Modal */}
-      <div
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
-      >
+      {/* ── Modal ── */}
+      <div style={{
+        position: 'fixed', inset: 0, zIndex: 50,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: 16, pointerEvents: 'none',
+      }}>
         <div
-          className="w-full max-w-lg pointer-events-auto animate-fade-up rounded-3xl overflow-hidden"
           style={{
-            background: C.bg,
-            border: `1px solid ${C.border}`,
-            boxShadow: '0 40px 80px rgba(0,0,0,0.6), 0 0 60px rgba(212,160,23,0.08)',
+            width: '100%', maxWidth: 520,
+            background: DARK,
+            border: `1.5px solid ${GOLD_BORDER}`,
+            borderRadius: 24,
+            boxShadow: '0 40px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(217,164,65,0.05)',
+            pointerEvents: 'all',
             maxHeight: '90vh',
             overflowY: 'auto',
+            animation: 'fadeUp 0.3s ease',
           }}
         >
 
-          {/* ── Header ── */}
-          <div
-            className="flex items-center justify-between px-6 py-5"
-            style={{ borderBottom: `1px solid ${C.borderDim}` }}
-          >
-            <div className="flex items-center gap-3">
-              <div
-                className="w-9 h-9 rounded-xl flex items-center justify-center"
-                style={{ background: C.goldDim, border: `1px solid ${C.border}` }}
-              >
-                <Sparkles size={18} style={{ color: C.gold }} />
+          {/* ── HEADER ── */}
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '18px 20px',
+            borderBottom: `1px solid rgba(255,255,255,0.06)`,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{
+                width: 38, height: 38, borderRadius: 12,
+                background: GOLD_DIM, border: `1px solid ${GOLD_BORDER}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Sparkles size={18} color={GOLD} />
               </div>
               <div>
-                <h2 className="font-display font-bold text-base" style={{ color: C.textPri }}>
+                <div style={{ color: TEXT_PRI, fontWeight: 700, fontSize: 15, fontFamily: 'Sora, sans-serif' }}>
                   Crave Assistant
-                </h2>
-                <p className="text-[11px]" style={{ color: C.textMuted }}>
-                  Tell me what you're craving
-                </p>
+                </div>
+                <div style={{ color: TEXT_MUTED, fontSize: 11 }}>
+                  Tell me what you feel like eating
+                </div>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-xl flex items-center justify-center transition-all"
-              style={{ background: C.surfaceL, color: C.textSec }}
+              style={{
+                width: 32, height: 32, borderRadius: 10,
+                background: SURFACE, border: 'none',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', color: TEXT_SEC,
+              }}
             >
               <X size={16} />
             </button>
           </div>
 
-          {/* ── Input phase ── */}
+          {/* ════════════════════════════════════════
+              PHASE: INPUT
+          ════════════════════════════════════════ */}
           {phase === 'input' && (
-            <div className="px-6 py-6">
+            <div style={{ padding: '20px 20px 24px' }}>
 
-              {/* Greeting */}
-              <div className="mb-6">
-                <p
-                  className="text-sm leading-relaxed"
-                  style={{ color: C.textSec }}
-                >
-                  Describe your craving naturally — mood, budget, cuisine, anything. I'll find the perfect dish for you.
-                </p>
-              </div>
+              {/* Intro */}
+              <p style={{ color: TEXT_SEC, fontSize: 13, lineHeight: 1.6, marginBottom: 18 }}>
+                Describe what you're craving — mood, budget, spice level, cuisine. I'll find your perfect dish.
+              </p>
 
-              {/* Suggested prompts */}
-              <div className="mb-5">
-                <p
-                  className="text-[10px] font-display font-semibold uppercase tracking-widest mb-3"
-                  style={{ color: C.textMuted }}
-                >
-                  Quick picks
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {PROMPTS.map((p) => (
-                    <button
-                      key={p.label}
-                      onClick={() => handleSubmit(p.label)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all"
-                      style={{
-                        background: C.surface,
-                        border: `1px solid ${C.borderDim}`,
-                        color: C.textSec,
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = C.border;
-                        e.currentTarget.style.color = C.textPri;
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor = C.borderDim;
-                        e.currentTarget.style.color = C.textSec;
-                      }}
-                    >
-                      <span>{p.emoji}</span>
-                      {p.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Input box */}
-              <div
-                className="rounded-2xl overflow-hidden"
-                style={{ border: `1.5px solid ${C.border}`, background: C.surface }}
-              >
+              {/* Text input */}
+              <div style={{
+                background: SURFACE,
+                border: `1.5px solid ${GOLD_BORDER}`,
+                borderRadius: 16,
+                overflow: 'hidden',
+                marginBottom: 16,
+              }}>
                 <textarea
-                  ref={inputRef}
+                  ref={textareaRef}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
-                      handleSubmit();
+                      analyze();
                     }
                   }}
                   placeholder="e.g. I want something spicy and juicy under ₹200..."
                   rows={3}
-                  className="w-full resize-none bg-transparent px-4 pt-4 pb-2 text-sm outline-none font-body"
-                  style={{ color: C.textPri }}
+                  style={{
+                    width: '100%', resize: 'none',
+                    background: 'transparent',
+                    border: 'none', outline: 'none',
+                    padding: '14px 16px 8px',
+                    color: TEXT_PRI,
+                    fontSize: 14,
+                    fontFamily: 'DM Sans, sans-serif',
+                    lineHeight: 1.5,
+                    boxSizing: 'border-box',
+                  }}
                 />
-                <div className="flex items-center justify-between px-4 pb-3">
-                  <p className="text-[11px]" style={{ color: C.textMuted }}>
-                    Press Enter to find your dish
-                  </p>
+                <div style={{
+                  display: 'flex', alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '8px 12px 12px',
+                }}>
+                  <span style={{ color: TEXT_MUTED, fontSize: 11 }}>
+                    Press Enter or tap Find
+                  </span>
                   <button
-                    onClick={() => handleSubmit()}
+                    onClick={() => analyze()}
                     disabled={!query.trim()}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all disabled:opacity-40"
-                    style={{ background: C.gold, color: '#1A0F0A' }}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 6,
+                      padding: '8px 16px', borderRadius: 10,
+                      background: query.trim() ? GOLD : 'rgba(217,164,65,0.3)',
+                      border: 'none', cursor: query.trim() ? 'pointer' : 'default',
+                      color: '#1A0A00', fontSize: 13, fontWeight: 700,
+                      transition: 'all 0.2s',
+                    }}
                   >
-                    <Zap size={13} /> Find it
+                    <Zap size={14} /> Find dishes
                   </button>
                 </div>
               </div>
-            </div>
-          )}
 
-          {/* ── Thinking state ── */}
-          {isThinking && (
-            <div className="px-6 py-12 flex flex-col items-center justify-center text-center">
-              <div
-                className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 animate-pulse"
-                style={{ background: C.goldDim, border: `1px solid ${C.border}` }}
-              >
-                <Sparkles size={24} style={{ color: C.gold }} />
+              {/* Quick prompts */}
+              <div style={{ marginBottom: 4 }}>
+                <p style={{
+                  color: TEXT_MUTED, fontSize: 10,
+                  fontWeight: 700, letterSpacing: '0.1em',
+                  textTransform: 'uppercase', marginBottom: 10,
+                }}>
+                  Quick picks — tap to search
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {QUICK_PROMPTS.map((p) => (
+                    <button
+                      key={p.text}
+                      onClick={() => analyze(p.text)}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 6,
+                        padding: '7px 12px', borderRadius: 20,
+                        background: SURFACE,
+                        border: `1px solid rgba(255,255,255,0.08)`,
+                        color: TEXT_SEC, fontSize: 12, fontWeight: 500,
+                        cursor: 'pointer', transition: 'all 0.15s',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = GOLD_BORDER;
+                        e.currentTarget.style.color = TEXT_PRI;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
+                        e.currentTarget.style.color = TEXT_SEC;
+                      }}
+                    >
+                      <span>{p.emoji}</span> {p.text}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <p className="font-display font-semibold text-base mb-1" style={{ color: C.textPri }}>
-                Finding your perfect match…
-              </p>
-              <p className="text-sm" style={{ color: C.textMuted }}>
-                Analysing your craving
-              </p>
             </div>
           )}
 
-          {/* ── Results phase ── */}
-          {phase === 'results' && !isThinking && (
-            <div className="px-6 py-5">
+          {/* ════════════════════════════════════════
+              PHASE: THINKING
+          ════════════════════════════════════════ */}
+          {phase === 'thinking' && (
+            <div style={{
+              padding: '48px 24px',
+              display: 'flex', flexDirection: 'column',
+              alignItems: 'center', textAlign: 'center', gap: 12,
+            }}>
+              {/* Pulsing icon */}
+              <div style={{
+                width: 60, height: 60, borderRadius: 20,
+                background: GOLD_DIM, border: `1px solid ${GOLD_BORDER}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                animation: 'pulse 1.2s ease-in-out infinite',
+              }}>
+                <Sparkles size={28} color={GOLD} />
+              </div>
+              <div>
+                <div style={{ color: TEXT_PRI, fontWeight: 700, fontSize: 16, marginBottom: 4 }}>
+                  Finding your perfect dish…
+                </div>
+                <div style={{ color: TEXT_MUTED, fontSize: 13 }}>
+                  Analysing "{query}"
+                </div>
+              </div>
+              {/* Animated dots */}
+              <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+                {[0, 1, 2].map((i) => (
+                  <div key={i} style={{
+                    width: 7, height: 7, borderRadius: '50%',
+                    background: GOLD,
+                    animation: `bounce 1s ${i * 0.2}s ease-in-out infinite`,
+                  }} />
+                ))}
+              </div>
+            </div>
+          )}
 
-              {/* Query recap */}
-              <div
-                className="flex items-center justify-between mb-5 pb-4"
-                style={{ borderBottom: `1px solid ${C.borderDim}` }}
-              >
+          {/* ════════════════════════════════════════
+              PHASE: RESULTS
+          ════════════════════════════════════════ */}
+          {phase === 'results' && (
+            <div style={{ padding: '20px 20px 24px' }}>
+
+              {/* Query recap + reset */}
+              <div style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                marginBottom: 16, paddingBottom: 14,
+                borderBottom: `1px solid rgba(255,255,255,0.06)`,
+              }}>
                 <div>
-                  <p className="text-[10px] font-display uppercase tracking-widest mb-1" style={{ color: C.textMuted }}>
-                    Your craving
-                  </p>
-                  <p className="text-sm font-display font-semibold" style={{ color: C.textSec }}>
+                  <div style={{ color: TEXT_MUTED, fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 3 }}>
+                    Matched for
+                  </div>
+                  <div style={{ color: TEXT_SEC, fontSize: 13, fontWeight: 600 }}>
                     "{query}"
-                  </p>
+                  </div>
                 </div>
                 <button
                   onClick={handleReset}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium"
                   style={{
-                    background: C.surface,
-                    border: `1px solid ${C.borderDim}`,
-                    color: C.textSec,
+                    display: 'flex', alignItems: 'center', gap: 6,
+                    padding: '6px 12px', borderRadius: 10,
+                    background: SURFACE, border: `1px solid rgba(255,255,255,0.08)`,
+                    color: TEXT_SEC, fontSize: 12, fontWeight: 600,
+                    cursor: 'pointer',
                   }}
                 >
-                  <RotateCcw size={12} /> Change
+                  <RotateCcw size={12} /> Search again
                 </button>
               </div>
 
-              {recommendations.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="font-display font-semibold mb-2" style={{ color: C.textPri }}>
+              {/* No results */}
+              {results.length === 0 && (
+                <div style={{ textAlign: 'center', padding: '24px 0' }}>
+                  <div style={{ fontSize: 40, marginBottom: 12 }}>🤔</div>
+                  <div style={{ color: TEXT_PRI, fontWeight: 700, fontSize: 16, marginBottom: 6 }}>
                     No exact matches found
-                  </p>
-                  <p className="text-sm mb-4" style={{ color: C.textMuted }}>
-                    Try a different craving or remove the budget constraint
-                  </p>
+                  </div>
+                  <div style={{ color: TEXT_MUTED, fontSize: 13, marginBottom: 20 }}>
+                    Try different words or remove budget constraints
+                  </div>
                   <button
                     onClick={handleReset}
-                    className="px-5 py-2.5 rounded-xl text-sm font-bold"
-                    style={{ background: C.gold, color: '#1A0F0A' }}
+                    style={{
+                      padding: '10px 20px', borderRadius: 12,
+                      background: GOLD, border: 'none',
+                      color: '#1A0A00', fontWeight: 700, fontSize: 13,
+                      cursor: 'pointer',
+                    }}
                   >
                     Try again
                   </button>
                 </div>
-              ) : (
+              )}
+
+              {/* Results */}
+              {results.length > 0 && (
                 <>
-                  {/* Best match */}
-                  <div className="mb-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Zap size={14} style={{ color: C.gold }} />
-                      <p className="text-xs font-display font-bold uppercase tracking-widest" style={{ color: C.gold }}>
-                        Best Match
-                      </p>
+                  {/* Best match — large */}
+                  <div style={{ marginBottom: 14 }}>
+                    <div style={{
+                      display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10,
+                    }}>
+                      <Zap size={14} color={GOLD} />
+                      <span style={{ color: GOLD, fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                        Your Best Match
+                      </span>
                     </div>
-                    <RecommendationCard
-                      dish={recommendations[0]}
-                      label="We chose this for you"
+                    <DishCard
+                      dish={results[0]}
+                      rank={0}
                       onAdd={handleAdd}
-                      onAnother={handleAnother}
-                      isMain
+                      onView={handleView}
                     />
                   </div>
 
                   {/* Alternate matches */}
-                  {recommendations.slice(1).length > 0 && (
-                    <div className="mb-5">
-                      <p
-                        className="text-[10px] font-display uppercase tracking-widest mb-3"
-                        style={{ color: C.textMuted }}
-                      >
-                        Alternate matches
-                      </p>
-                      <div className="grid grid-cols-2 gap-3">
-                        {recommendations.slice(1, 3).map((dish) => (
-                          <RecommendationCard
+                  {results.slice(1).length > 0 && (
+                    <div style={{ marginBottom: 16 }}>
+                      <div style={{
+                        color: TEXT_MUTED, fontSize: 10, fontWeight: 700,
+                        letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 10,
+                      }}>
+                        Also consider
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                        {results.slice(1, 3).map((dish, i) => (
+                          <DishCard
                             key={dish.id}
                             dish={dish}
-                            label="Also great"
+                            rank={i + 1}
                             onAdd={handleAdd}
-                            onAnother={handleAnother}
-                            isMain={false}
+                            onView={handleView}
                           />
                         ))}
                       </div>
                     </div>
                   )}
 
-                  {/* View all */}
+                  {/* See all */}
                   <button
-                    onClick={handleViewAll}
-                    className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-display font-semibold transition-all"
+                    onClick={handleSeeAll}
                     style={{
-                      background: C.surface,
-                      border: `1px solid ${C.borderDim}`,
-                      color: C.textSec,
+                      width: '100%',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      gap: 8, padding: '12px',
+                      borderRadius: 14,
+                      background: SURFACE,
+                      border: `1px solid rgba(255,255,255,0.08)`,
+                      color: TEXT_SEC, fontSize: 13, fontWeight: 600,
+                      cursor: 'pointer',
+                      boxSizing: 'border-box',
                     }}
                   >
-                    View all results for "{query}"
+                    <Search size={15} />
+                    See all results for "{query}"
                     <ChevronRight size={15} />
                   </button>
                 </>
@@ -484,16 +573,38 @@ export default function CraveAssistant({ onClose }) {
           )}
 
           {/* ── Footer ── */}
-          <div
-            className="px-6 py-3 text-center"
-            style={{ borderTop: `1px solid ${C.borderDim}` }}
-          >
-            <p className="text-[10px]" style={{ color: C.textMuted }}>
-              Powered by Savor · Smart food matching
-            </p>
+          <div style={{
+            borderTop: `1px solid rgba(255,255,255,0.05)`,
+            padding: '10px 20px',
+            textAlign: 'center',
+          }}>
+            <span style={{ color: TEXT_MUTED, fontSize: 11 }}>
+              Savor Crave Assistant · Smart food matching
+            </span>
           </div>
+
         </div>
       </div>
+
+      {/* Inline animation styles */}
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(24px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); opacity: 1; }
+          50% { transform: scale(1.08); opacity: 0.8; }
+        }
+        @keyframes bounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-8px); }
+        }
+      `}</style>
     </>
   );
 }
