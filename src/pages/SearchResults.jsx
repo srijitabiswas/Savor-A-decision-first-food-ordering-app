@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
+import BackButton from '../components/BackButton';
 import { useNavigate } from 'react-router-dom';
 import {
   Search, SlidersHorizontal, Star, Clock, Users,
@@ -434,6 +435,7 @@ export default function SearchResults() {
         {/* ── Sticky search + controls ─── */}
         <div className="sticky top-16 z-30 glass border-b border-border-default">
           <div className="max-w-6xl mx-auto px-6 py-3 flex gap-3 items-center">
+            <BackButton label="Back to Home" />
             {/* Search input */}
             <div className="relative flex-1">
               <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" />

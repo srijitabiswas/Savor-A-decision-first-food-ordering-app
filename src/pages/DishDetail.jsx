@@ -1,4 +1,5 @@
 import React from 'react';
+import BackButton from '../components/BackButton';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Star, Clock, Users, Flame, Utensils, ChefHat, Plus, Minus, Store } from 'lucide-react';
 import { getDishById, getRestaurantById } from '../data/mockData';
@@ -140,6 +141,7 @@ export default function DishDetail() {
         {/* Price + CTA */}
         <div className="fixed bottom-0 left-0 right-0 glass border-t border-border-default px-6 py-4 z-40">
           <div className="max-w-2xl mx-auto flex items-center justify-between">
+             <BackButton label="Back to results" />
             <div>
               <p className="text-text-muted text-xs font-body mb-0.5">Price</p>
               <p className="font-display font-bold text-2xl text-text-primary">₹{dish.price}</p>

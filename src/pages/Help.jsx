@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import BackButton from '../components/BackButton';
 import { HelpCircle, ChevronDown, ChevronUp, MessageCircle, Mail } from 'lucide-react';
 
 const FAQS = [
@@ -34,6 +35,7 @@ export default function Help() {
   return (
     <div className="min-h-screen bg-bg-primary pt-20 pb-12 px-6">
       <div className="max-w-xl mx-auto">
+        <BackButton label="Back" />
         <div className="flex items-center gap-3 mb-6 pt-4">
           <HelpCircle size={22} className="text-accent-purple" />
           <h1 className="font-display font-bold text-text-primary text-2xl">Help & Support</h1>

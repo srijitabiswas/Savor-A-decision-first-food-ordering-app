@@ -1,4 +1,5 @@
 import React from 'react';
+import BackButton from '../components/BackButton';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Minus, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
 import { useApp } from '../context/AppContext';
@@ -35,6 +36,7 @@ export default function Cart() {
     <div className="min-h-screen bg-bg-primary pt-20 pb-16">
       <div className="max-w-3xl mx-auto px-6">
         <div className="pt-4 mb-8">
+          <BackButton label="Continue shopping" />
           <h1 className="font-display font-bold text-2xl text-text-primary">
             Your Cart
           </h1>

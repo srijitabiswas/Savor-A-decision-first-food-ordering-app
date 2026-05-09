@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import BackButton from '../components/BackButton';
 import { MapPin, Plus, Trash2, Check } from 'lucide-react';
 
 const DEFAULT_ADDRS = [
@@ -26,6 +27,7 @@ export default function SavedAddresses() {
   return (
     <div className="min-h-screen bg-bg-primary pt-20 pb-12 px-6">
       <div className="max-w-xl mx-auto">
+        <BackButton label="Back" />
         <div className="flex items-center justify-between mb-6 pt-4">
           <h1 className="font-display font-bold text-text-primary text-2xl">Saved Addresses</h1>
           <button

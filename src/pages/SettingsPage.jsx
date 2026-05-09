@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import BackButton from '../components/BackButton';
 import { Bell, Moon, Globe, Shield, ChevronRight } from 'lucide-react';
 
 const SETTINGS = [
@@ -35,6 +36,7 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-bg-primary pt-20 pb-12 px-6">
       <div className="max-w-xl mx-auto">
+        <BackButton label="Back" />
         <h1 className="font-display font-bold text-text-primary text-2xl mb-6 pt-4">Settings</h1>
 
         <div className="space-y-5">

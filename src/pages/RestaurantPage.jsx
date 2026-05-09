@@ -1,4 +1,5 @@
 import React from 'react';
+import BackButton from '../components/BackButton';
 import { useParams } from 'react-router-dom';
 import { Star, Clock, MapPin } from 'lucide-react';
 import { getRestaurantById, getDishesByRestaurant } from '../data/mockData';
@@ -36,6 +37,8 @@ export default function RestaurantPage() {
       </div>
 
       <div className="max-w-6xl mx-auto px-6 -mt-6 relative z-10 pb-16">
+         <BackButton label="Back" />
+
         {/* Restaurant info */}
         <div className="bg-bg-secondary rounded-2xl border border-border-default p-6 mb-10">
           <h1 className="font-display font-bold text-2xl text-text-primary mb-1">{restaurant.name}</h1>

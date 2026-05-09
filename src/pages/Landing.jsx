@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import BackButton from '../components/BackButton';
 import { useNavigate } from 'react-router-dom';
 import {
   Search, ArrowRight, Zap, Shield, Clock,
@@ -105,7 +106,7 @@ export default function Landing() {
             SECTION 1 — HERO
             Goal: make user search immediately
         ══════════════════════════════════════════ */}
-        <div className="pt-14 pb-12 flex flex-col lg:flex-row items-center gap-10">
+        <div className="pt-14 pb-12 flex flex-col lg:flex-row items-start gap-10">
 
           {/* Left — headline + search */}
           <div className="flex-1 max-w-xl">
@@ -174,25 +175,40 @@ export default function Landing() {
           </div>
 
           {/* Right — hero food image */}
-          <div className="flex-shrink-0 w-full max-w-xs lg:max-w-sm relative hidden md:block">
-            <div className="relative w-full aspect-square rounded-3xl overflow-hidden shadow-card-hover">
-              <img
-                src="https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=600&q=80"
-                alt="Delicious food"
-                className="w-full h-full object-cover"
-              />
-              {/* Floating badge */}
-              <div className="absolute bottom-4 left-4 right-4 glass rounded-2xl px-4 py-3 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-accent-purple flex items-center justify-center flex-shrink-0">
-                  <Zap size={18} className="text-white" />
-                </div>
-                <div>
-                  <p className="font-display font-bold text-text-primary text-sm">Decision-first</p>
-                  <p className="text-text-muted text-xs font-body">We pick the best for your budget</p>
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* Right — hero food image — bigger, aligned */}
+<div className="flex-shrink-0 w-full lg:w-[480px] xl:w-[520px] relative hidden md:flex flex-col">
+  <div className="relative w-full rounded-3xl overflow-hidden shadow-card-hover border border-border-default" style={{ height: '420px' }}>
+    <img
+      src="https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=800&q=80"
+      alt="Delicious food"
+      className="w-full h-full object-cover"
+    />
+    {/* Floating badge — bottom left, no gradient */}
+    <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-sm rounded-2xl px-4 py-3 flex items-center gap-3 shadow-card border border-border-default">
+      <div className="w-10 h-10 rounded-xl bg-accent-purple flex items-center justify-center flex-shrink-0 shadow-purple-sm">
+        <Zap size={18} className="text-white" />
+      </div>
+      <div>
+        <p className="font-display font-bold text-text-primary text-sm">Decision-first</p>
+        <p className="text-text-muted text-xs font-body">We pick the best for your budget</p>
+      </div>
+    </div>
+  </div>
+
+  {/* Stats row below image — aligns with content below on scroll */}
+  <div className="grid grid-cols-3 gap-3 mt-3">
+    {[
+      { value: '22 min', label: 'Avg delivery' },
+      { value: '4.6 ★', label: 'Avg rating' },
+      { value: '₹49+', label: 'Starting from' },
+    ].map(({ value, label }) => (
+      <div key={label} className="bg-white rounded-2xl border border-border-default px-4 py-3 text-center">
+        <p className="font-display font-bold text-text-primary text-sm">{value}</p>
+        <p className="text-text-muted text-[11px] font-body">{label}</p>
+      </div>
+    ))}
+  </div>
+</div>
         </div>
 
         {/* ══════════════════════════════════════════

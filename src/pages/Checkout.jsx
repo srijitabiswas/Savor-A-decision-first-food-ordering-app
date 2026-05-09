@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import BackButton from '../components/BackButton';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, CreditCard, Wallet, Smartphone } from 'lucide-react';
 import { useApp } from '../context/AppContext';
@@ -36,6 +37,7 @@ export default function Checkout() {
     <div className="min-h-screen bg-bg-primary pt-20 pb-16">
       <div className="max-w-3xl mx-auto px-6">
         <div className="pt-4 mb-8">
+          <BackButton label="Back to cart" />
           <h1 className="font-display font-bold text-2xl text-text-primary">Checkout</h1>
           <p className="text-text-muted text-sm mt-1">Almost there</p>
         </div>

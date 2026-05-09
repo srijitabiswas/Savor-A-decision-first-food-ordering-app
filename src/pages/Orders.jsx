@@ -1,4 +1,5 @@
 import React from 'react';
+import BackButton from '../components/BackButton';
 import { ClipboardList, Clock, CheckCircle, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -26,6 +27,7 @@ export default function Orders() {
   return (
     <div className="min-h-screen bg-bg-primary pt-20 pb-12 px-6">
       <div className="max-w-2xl mx-auto">
+        <BackButton label="Back" />
         <div className="flex items-center gap-3 mb-6 pt-4">
           <ClipboardList size={22} className="text-accent-purple" />
           <h1 className="font-display font-bold text-text-primary text-2xl">My Orders</h1>

@@ -1,4 +1,5 @@
 import React from 'react';
+import BackButton from '../components/BackButton';
 import { useNavigate } from 'react-router-dom';
 import { User, Mail, Phone, Edit2, ChevronLeft } from 'lucide-react';
 
@@ -7,6 +8,7 @@ export default function Profile() {
   return (
     <div className="min-h-screen bg-bg-primary pt-20 pb-12 px-6">
       <div className="max-w-xl mx-auto">
+        <BackButton label="Back" />
         <h1 className="font-display font-bold text-text-primary text-2xl mb-6 pt-4">My Profile</h1>
 
         <div className="bg-white rounded-3xl border border-border-default shadow-card overflow-hidden">

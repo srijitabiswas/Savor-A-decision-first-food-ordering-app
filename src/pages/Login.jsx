@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import BackButton from '../components/BackButton';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
 
@@ -16,6 +17,7 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-bg-primary flex items-center justify-center px-6 pt-20 pb-10">
       <div className="w-full max-w-md">
+          <BackButton label="Back to home" />
         <div className="bg-white rounded-3xl border border-border-default shadow-card p-8">
           {/* Header */}
           <div className="text-center mb-8">
