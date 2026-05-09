@@ -28,9 +28,9 @@ export default function Cart() {
     );
   }
 
-  const deliveryFee = 30;
-  const taxes = Math.round(cartTotal * 0.05);
-  const grandTotal = cartTotal + deliveryFee + taxes;
+  const deliveryFee = 0; // Free delivery always
+const discount = cartTotal >= 500 ? Math.round(cartTotal * 0.2) : 0; // 20% off above ₹500
+const grandTotal = cartTotal - discount;
 
   return (
     <div className="min-h-screen bg-bg-primary pt-20 pb-16">
@@ -97,23 +97,36 @@ export default function Cart() {
             <div className="bg-bg-secondary rounded-2xl border border-border-default p-5 sticky top-24">
               <h3 className="font-display font-semibold text-text-primary mb-5">Order Summary</h3>
               <div className="space-y-3 mb-5">
-                <div className="flex justify-between">
-                  <span className="text-text-secondary text-sm">Subtotal</span>
-                  <span className="text-text-primary text-sm font-display font-medium">₹{cartTotal}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-text-secondary text-sm">Delivery</span>
-                  <span className="text-text-primary text-sm font-display font-medium">₹{deliveryFee}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-text-secondary text-sm">Taxes (5%)</span>
-                  <span className="text-text-primary text-sm font-display font-medium">₹{taxes}</span>
-                </div>
-                <div className="border-t border-border-default pt-3 flex justify-between">
-                  <span className="font-display font-semibold text-text-primary">Total</span>
-                  <span className="font-display font-bold text-xl text-text-primary">₹{grandTotal}</span>
-                </div>
-              </div>
+  <div className="flex justify-between">
+    <span className="text-text-secondary text-sm">Subtotal</span>
+    <span className="text-text-primary text-sm font-display font-medium">₹{cartTotal}</span>
+  </div>
+  <div className="flex justify-between">
+    <span className="text-text-secondary text-sm flex items-center gap-1">
+      Delivery
+    </span>
+    <span className="text-emerald-600 text-sm font-display font-semibold">FREE</span>
+  </div>
+  {discount > 0 && (
+    <div className="flex justify-between">
+      <span className="text-emerald-700 text-sm font-display font-semibold">
+        🎉 20% off (above ₹500)
+      </span>
+      <span className="text-emerald-700 text-sm font-display font-semibold">−₹{discount}</span>
+    </div>
+  )}
+  {cartTotal >= 400 && cartTotal < 500 && (
+    <div className="px-3 py-2 rounded-xl bg-accent-purple/8 border border-accent-purple/20">
+      <p className="text-accent-purple text-xs font-display font-semibold text-center">
+        Add ₹{500 - cartTotal} more for 20% off!
+      </p>
+    </div>
+  )}
+  <div className="border-t border-border-default pt-3 flex justify-between">
+    <span className="font-display font-semibold text-text-primary">Total</span>
+    <span className="font-display font-bold text-xl text-text-primary">₹{grandTotal}</span>
+  </div>
+</div>
               <button
                 onClick={() => navigate('/checkout')}
                 className="w-full py-3.5 bg-accent-purple rounded-xl text-white font-display font-semibold text-sm hover:bg-accent-purple-dim transition-all flex items-center justify-center gap-2 shadow-purple"

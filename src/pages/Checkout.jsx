@@ -13,23 +13,33 @@ const paymentMethods = [
 export default function Checkout() {
   const { state, dispatch, cartTotal } = useApp();
   const navigate = useNavigate();
+
   const [payment, setPayment] = useState('upi');
+
   const [address, setAddress] = useState({
     line1: '',
     city: '',
     pincode: '',
   });
 
-  const deliveryFee = 30;
+  const deliveryFee = 0;
+
+  const discount =
+    cartTotal >= 500 ? Math.round(cartTotal * 0.2) : 0;
+
   const taxes = Math.round(cartTotal * 0.05);
-  const grandTotal = cartTotal + deliveryFee + taxes;
+
+  const grandTotal =
+    cartTotal - discount + taxes + deliveryFee;
 
   const handleOrder = () => {
     if (!address.line1 || !address.city || !address.pincode) {
       alert('Please fill in your delivery address.');
       return;
     }
+
     dispatch({ type: 'CLEAR_CART' });
+
     navigate('/confirmation');
   };
 
@@ -38,51 +48,90 @@ export default function Checkout() {
       <div className="max-w-3xl mx-auto px-6">
         <div className="pt-4 mb-8">
           <BackButton label="Back to cart" />
-          <h1 className="font-display font-bold text-2xl text-text-primary">Checkout</h1>
-          <p className="text-text-muted text-sm mt-1">Almost there</p>
+
+          <h1 className="font-display font-bold text-2xl text-text-primary">
+            Checkout
+          </h1>
+
+          <p className="text-text-muted text-sm mt-1">
+            Almost there
+          </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* LEFT SECTION */}
           <div className="lg:col-span-2 space-y-5">
-            {/* Delivery Address */}
+
+            {/* DELIVERY ADDRESS */}
             <div className="bg-bg-secondary rounded-2xl border border-border-default p-5">
               <div className="flex items-center gap-2 mb-5">
-                <MapPin size={16} className="text-accent-purple" />
-                <h2 className="font-display font-semibold text-text-primary">Delivery Address</h2>
+                <MapPin
+                  size={16}
+                  className="text-accent-purple"
+                />
+
+                <h2 className="font-display font-semibold text-text-primary">
+                  Delivery Address
+                </h2>
               </div>
+
               <div className="space-y-3">
                 <input
                   type="text"
                   placeholder="Street address, flat, landmark"
                   value={address.line1}
-                  onChange={(e) => setAddress({ ...address, line1: e.target.value })}
+                  onChange={(e) =>
+                    setAddress({
+                      ...address,
+                      line1: e.target.value,
+                    })
+                  }
                   className="w-full bg-bg-elevated border border-border-default rounded-xl px-4 py-3 text-text-primary font-body text-sm placeholder:text-text-muted focus:outline-none focus:border-accent-purple/60 transition-all"
                 />
+
                 <div className="grid grid-cols-2 gap-3">
                   <input
                     type="text"
                     placeholder="City"
                     value={address.city}
-                    onChange={(e) => setAddress({ ...address, city: e.target.value })}
+                    onChange={(e) =>
+                      setAddress({
+                        ...address,
+                        city: e.target.value,
+                      })
+                    }
                     className="w-full bg-bg-elevated border border-border-default rounded-xl px-4 py-3 text-text-primary font-body text-sm placeholder:text-text-muted focus:outline-none focus:border-accent-purple/60 transition-all"
                   />
+
                   <input
                     type="text"
                     placeholder="PIN code"
                     value={address.pincode}
-                    onChange={(e) => setAddress({ ...address, pincode: e.target.value })}
+                    onChange={(e) =>
+                      setAddress({
+                        ...address,
+                        pincode: e.target.value,
+                      })
+                    }
                     className="w-full bg-bg-elevated border border-border-default rounded-xl px-4 py-3 text-text-primary font-body text-sm placeholder:text-text-muted focus:outline-none focus:border-accent-purple/60 transition-all"
                   />
                 </div>
               </div>
             </div>
 
-            {/* Payment */}
+            {/* PAYMENT METHOD */}
             <div className="bg-bg-secondary rounded-2xl border border-border-default p-5">
               <div className="flex items-center gap-2 mb-5">
-                <CreditCard size={16} className="text-accent-purple" />
-                <h2 className="font-display font-semibold text-text-primary">Payment Method</h2>
+                <CreditCard
+                  size={16}
+                  className="text-accent-purple"
+                />
+
+                <h2 className="font-display font-semibold text-text-primary">
+                  Payment Method
+                </h2>
               </div>
+
               <div className="space-y-2.5">
                 {paymentMethods.map((m) => (
                   <label
@@ -101,52 +150,106 @@ export default function Checkout() {
                       onChange={() => setPayment(m.id)}
                       className="accent-[#7C6CFF]"
                     />
-                    <span className={payment === m.id ? 'text-accent-purple' : 'text-text-muted'}>
+
+                    <span
+                      className={
+                        payment === m.id
+                          ? 'text-accent-purple'
+                          : 'text-text-muted'
+                      }
+                    >
                       {m.icon}
                     </span>
-                    <span className="font-body text-sm text-text-secondary">{m.label}</span>
+
+                    <span className="font-body text-sm text-text-secondary">
+                      {m.label}
+                    </span>
                   </label>
                 ))}
               </div>
             </div>
           </div>
 
-          {/* Summary */}
+          {/* ORDER SUMMARY */}
           <div className="lg:col-span-1">
             <div className="bg-bg-secondary rounded-2xl border border-border-default p-5 sticky top-24">
-              <h3 className="font-display font-semibold text-text-primary mb-4">Order Summary</h3>
+
+              <h3 className="font-display font-semibold text-text-primary mb-4">
+                Order Summary
+              </h3>
+
+              {/* CART ITEMS */}
               <div className="space-y-2 mb-4 max-h-40 overflow-y-auto pr-1">
                 {state.cart.map((item) => (
-                  <div key={item.id} className="flex justify-between text-sm">
-                    <span className="text-text-secondary truncate pr-2">
-                      {item.name} ×{item.qty}
+                  <div
+                    key={item.id}
+                    className="flex justify-between text-sm"
+                  >
+                    <span className="text-text-secondary">
+                      {item.name} × {item.quantity}
                     </span>
-                    <span className="text-text-primary font-display font-medium flex-shrink-0">
-                      ₹{item.price * item.qty}
+
+                    <span className="text-text-primary font-medium">
+                      ₹{item.price * item.quantity}
                     </span>
                   </div>
                 ))}
               </div>
+
+              {/* PRICE BREAKDOWN */}
               <div className="border-t border-border-default pt-4 space-y-2 mb-5">
+
                 <div className="flex justify-between text-sm">
-                  <span className="text-text-secondary">Delivery</span>
-                  <span className="text-text-primary">₹{deliveryFee}</span>
+                  <span className="text-text-secondary">
+                    Delivery
+                  </span>
+
+                  <span className="text-emerald-600 font-display font-semibold">
+                    FREE
+                  </span>
                 </div>
+
+                {discount > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-emerald-700 font-display font-semibold">
+                      20% discount
+                    </span>
+
+                    <span className="text-emerald-700 font-display font-semibold">
+                      −₹{discount}
+                    </span>
+                  </div>
+                )}
+
                 <div className="flex justify-between text-sm">
-                  <span className="text-text-secondary">Taxes</span>
-                  <span className="text-text-primary">₹{taxes}</span>
+                  <span className="text-text-secondary">
+                    Taxes
+                  </span>
+
+                  <span className="text-text-primary">
+                    ₹{taxes}
+                  </span>
                 </div>
+
                 <div className="flex justify-between border-t border-border-default pt-2 mt-2">
-                  <span className="font-display font-semibold text-text-primary">Total</span>
-                  <span className="font-display font-bold text-xl text-text-primary">₹{grandTotal}</span>
+                  <span className="font-display font-semibold text-text-primary">
+                    Total
+                  </span>
+
+                  <span className="font-display font-bold text-xl text-text-primary">
+                    ₹{grandTotal}
+                  </span>
                 </div>
               </div>
+
+              {/* PLACE ORDER BUTTON */}
               <button
                 onClick={handleOrder}
                 className="w-full py-3.5 bg-accent-purple rounded-xl text-white font-display font-semibold text-sm hover:bg-accent-purple-dim transition-all shadow-purple"
               >
                 Place Order · ₹{grandTotal}
               </button>
+
             </div>
           </div>
         </div>

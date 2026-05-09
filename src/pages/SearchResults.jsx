@@ -1,9 +1,10 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import BackButton from '../components/BackButton';
+import CraveAssistant from '../components/CraveAssistant';
 import { useNavigate } from 'react-router-dom';
 import {
   Search, SlidersHorizontal, Star, Clock, Users,
-  Shuffle, X, ChevronRight, Plus, Minus, Zap, TrendingUp,
+  Shuffle, X, ChevronRight, Plus, Minus, Zap, TrendingUp, Sparkles,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { filterDishes, cuisineCategories, getRestaurantById } from '../data/mockData';
@@ -263,12 +264,14 @@ function DecideModal({ dish, onClose, onAnother }) {
             <span className="font-display font-bold text-2xl text-text-primary">₹{dish.price}</span>
             <div className="flex gap-2">
               <button
-                onClick={onAnother}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border-default text-text-secondary text-sm font-display hover:border-accent-purple/30 transition-all"
-              >
-                <Shuffle size={14} />
-                Another
-              </button>
+  onClick={() => setCraveOpen(true)}
+  className="flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-display font-medium hover:border-accent-purple/40 hover:text-accent-purple transition-all group"
+  style={{ background: '#2D1B17', borderColor: 'rgba(212,160,23,0.3)', color: '#E6C36A' }}
+>
+  <Sparkles size={15} style={{ color: '#D4A017' }} />
+  <span className="hidden sm:inline">Crave Assistant</span>
+  <span className="sm:hidden">Crave</span>
+</button>
               <button
                 onClick={() => {
                   dispatch({ type: 'ADD_TO_CART', payload: dish });
@@ -370,6 +373,7 @@ export default function SearchResults() {
   const [filterOpen, setFilterOpen]         = useState(false);
   const [decideModal, setDecideModal]       = useState(null);
   const [usedIds, setUsedIds]               = useState([]);
+  const [craveOpen, setCraveOpen]           = useState(false);
 
   // Filter dishes
   const allResults = useMemo(() => filterDishes({
@@ -627,6 +631,10 @@ export default function SearchResults() {
           Decide for me
         </button>
       )}
+      {craveOpen && (
+  <CraveAssistant onClose={() => setCraveOpen(false)} />
+)}
+
     </>
   );
 }
