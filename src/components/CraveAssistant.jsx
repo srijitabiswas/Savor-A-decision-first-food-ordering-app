@@ -9,15 +9,15 @@ import { getRecommendations } from '../utils/craveEngine';
 import { useNavigate } from 'react-router-dom';
 
 // ── Design tokens ──────────────────────────────────────────────────
-const DARK = '#1C1008';
-const SURFACE = '#2A1A10';
-const SURFACE2 = '#362010';
-const GOLD = '#D9A441';
-const GOLD_DIM = 'rgba(217,164,65,0.15)';
-const GOLD_BORDER = 'rgba(217,164,65,0.25)';
-const TEXT_PRI = '#F5EFE6';
-const TEXT_SEC = '#C4AA88';
-const TEXT_MUTED = '#7A6A55';
+const DARK = '#F5EDE0';       // light warm cream background
+const SURFACE = '#EDE0CC';    // slightly darker surface
+const SURFACE2 = '#E5D4B8';   // card surface
+const GOLD = '#A0620A';       // dark amber — readable on light bg
+const GOLD_DIM = 'rgba(160,98,10,0.12)';
+const GOLD_BORDER = 'rgba(160,98,10,0.25)';
+const TEXT_PRI = '#1A0E05';   // near-black for primary text
+const TEXT_SEC = '#4A3520';   // dark brown for secondary
+const TEXT_MUTED = '#8A7060'; // muted brown
 
 // ── Quick prompts ──────────────────────────────────────────────────
 const QUICK_PROMPTS = [
@@ -60,7 +60,7 @@ function DishCard({ dish, rank, onAdd, onView }) {
         {/* Gradient overlay on bottom */}
         <div style={{
           position: 'absolute', bottom: 0, left: 0, right: 0, height: '60%',
-          background: 'linear-gradient(to top, rgba(28,16,8,0.85) 0%, transparent 100%)',
+          background: 'linear-gradient(to top, rgba(245,237,224,0.92) 0%, transparent 60%)',
         }} />
 
         {/* Top badge */}
@@ -237,7 +237,7 @@ export default function CraveAssistant({ onClose }) {
         onClick={onClose}
         style={{
           position: 'fixed', inset: 0, zIndex: 50,
-          background: 'rgba(10,5,0,0.8)',
+          background: 'rgba(30,15,5,0.6)',
           backdropFilter: 'blur(6px)',
           WebkitBackdropFilter: 'blur(6px)',
           animation: 'fadeIn 0.2s ease',
@@ -256,7 +256,7 @@ export default function CraveAssistant({ onClose }) {
             background: DARK,
             border: `1.5px solid ${GOLD_BORDER}`,
             borderRadius: 24,
-            boxShadow: '0 40px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(217,164,65,0.05)',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.2), 0 4px 16px rgba(160,98,10,0.1)',
             pointerEvents: 'all',
             maxHeight: '90vh',
             overflowY: 'auto',
@@ -268,7 +268,7 @@ export default function CraveAssistant({ onClose }) {
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             padding: '18px 20px',
-            borderBottom: `1px solid rgba(255,255,255,0.06)`,
+            borderBottom: `1px solid rgba(0,0,0,0.07)`,
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{
@@ -313,11 +313,12 @@ export default function CraveAssistant({ onClose }) {
 
               {/* Text input */}
               <div style={{
-                background: SURFACE,
+                background: '#FFF8F0',
                 border: `1.5px solid ${GOLD_BORDER}`,
                 borderRadius: 16,
                 overflow: 'hidden',
                 marginBottom: 16,
+                boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.05)',
               }}>
                 <textarea
                   ref={textareaRef}
@@ -386,16 +387,18 @@ export default function CraveAssistant({ onClose }) {
                         display: 'flex', alignItems: 'center', gap: 6,
                         padding: '7px 12px', borderRadius: 20,
                         background: SURFACE,
-                        border: `1px solid rgba(255,255,255,0.08)`,
+                        border: `1px solid rgba(0,0,0,0.08)`,
                         color: TEXT_SEC, fontSize: 12, fontWeight: 500,
                         cursor: 'pointer', transition: 'all 0.15s',
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = GOLD_BORDER;
-                        e.currentTarget.style.color = TEXT_PRI;
-                      }}
+                          e.currentTarget.style.borderColor = GOLD_BORDER;
+                          e.currentTarget.style.background = '#E5D4B8';
+                          e.currentTarget.style.color = TEXT_PRI;
+                        }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
+                        e.currentTarget.style.borderColor = 'rgba(0,0,0,0.08)';
+                        e.currentTarget.style.background = SURFACE;
                         e.currentTarget.style.color = TEXT_SEC;
                       }}
                     >
@@ -471,7 +474,7 @@ export default function CraveAssistant({ onClose }) {
                   style={{
                     display: 'flex', alignItems: 'center', gap: 6,
                     padding: '6px 12px', borderRadius: 10,
-                    background: SURFACE, border: `1px solid rgba(255,255,255,0.08)`,
+                    background: SURFACE, border: `1px solid rgba(0,0,0,0.1)`,
                     color: TEXT_SEC, fontSize: 12, fontWeight: 600,
                     cursor: 'pointer',
                   }}
@@ -557,7 +560,7 @@ export default function CraveAssistant({ onClose }) {
                       gap: 8, padding: '12px',
                       borderRadius: 14,
                       background: SURFACE,
-                      border: `1px solid rgba(255,255,255,0.08)`,
+                      border: `1px solid rgba(0,0,0,0.1)`,
                       color: TEXT_SEC, fontSize: 13, fontWeight: 600,
                       cursor: 'pointer',
                       boxSizing: 'border-box',
@@ -574,7 +577,7 @@ export default function CraveAssistant({ onClose }) {
 
           {/* ── Footer ── */}
           <div style={{
-            borderTop: `1px solid rgba(255,255,255,0.05)`,
+            borderTop: `1px solid rgba(0,0,0,0.06)`,
             padding: '10px 20px',
             textAlign: 'center',
           }}>

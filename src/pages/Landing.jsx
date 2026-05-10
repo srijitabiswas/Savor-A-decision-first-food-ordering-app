@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import BackButton from '../components/BackButton';
 import CraveAssistant from '../components/CraveAssistant';
 import { useNavigate } from 'react-router-dom';
 import {
-  Search, ArrowRight, Zap, Shield, Clock,
-  ThumbsUp, RefreshCw, Tag, ChevronRight, Sparkles
+  Search, TrendingUp, ArrowRight, Zap, Tag, Sparkles
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { trendingSearches, cuisineCategories, dishes } from '../data/mockData';
@@ -55,17 +54,28 @@ export default function Landing() {
   const [liveVisible, setLiveVisible] = useState(true);
   const [copiedCode, setCopiedCode] = useState(null);
   const [craveOpen, setCraveOpen] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(true); // show on load
+  const craveTooltipRef = useRef(null);
 
   useEffect(() => {
-    const id = setInterval(() => {
-      setLiveVisible(false);
-      setTimeout(() => {
-        setLiveIndex((i) => (i + 1) % LIVE_ORDERS.length);
-        setLiveVisible(true);
-      }, 400);
-    }, 3500);
-    return () => clearInterval(id);
-  }, []);
+  // Auto-hide tooltip after 4 seconds
+  const t = setTimeout(() => setShowTooltip(false), 4000);
+
+  // Live order ticker
+  const id = setInterval(() => {
+    setLiveVisible(false);
+    setTimeout(() => {
+      setLiveIndex((i) => (i + 1) % LIVE_ORDERS.length);
+      setLiveVisible(true);
+    }, 400);
+  }, 3500);
+
+  // Single cleanup return — clears both
+  return () => {
+    clearTimeout(t);
+    clearInterval(id);
+  };
+}, []);
 
   const handleFind = (query = inputValue) => {
     dispatch({ type: 'SET_SEARCH_QUERY', payload: query.trim() });
@@ -143,52 +153,97 @@ export default function Landing() {
             </p>
 
             {/* ── SEARCH BAR — Primary action ── */}
-            <div className="relative group mb-4">
-              <Search size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-accent-purple transition-colors" />
-              <input
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleFind()}
-                placeholder="Search for biryani, pizza, momos..."
-                className="w-full bg-bg-secondary border border-border-default rounded-2xl pl-14 pr-32 py-4 text-text-primary font-body text-base placeholder:text-text-muted focus:outline-none focus:border-accent-purple/60 transition-all"
-              />
-              <button
-                onClick={() => handleFind()}
-                className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 px-5 py-2.5 bg-accent-purple rounded-xl text-white text-sm font-display font-bold hover:bg-accent-purple-dim transition-all shadow-purple-sm active:scale-95"
-              >
-                Find <ArrowRight size={14} />
-              </button>
-            </div>
-            
-            {/* CTA */}
+            {/* Search bar + Crave icon */}
 <div
-  className="anim-init animate-fade-up delay-600"
+  className="w-full max-w-xl mb-5 anim-init animate-fade-up delay-200"
   style={{ animationFillMode: 'forwards' }}
 >
-  {/* Primary CTA */}
-  <button
-    onClick={handleFind}
-    className="flex items-center gap-3 px-10 py-4 rounded-2xl text-base font-display font-bold hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 mb-4"
-    style={{ background: '#D9A441', color: '#1A0A00' }}
-  >
-    <Zap size={18} />
-    Find my meal
-  </button>
+  <div className="relative flex items-center gap-2">
+    {/* Search input — slightly smaller */}
+    <div className="relative flex-1 group">
+      <Search
+        size={18}
+        className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-accent-purple transition-colors duration-200"
+      />
+      <input
+        type="text"
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder="Search for biryani, pizza, momos..."
+        className="w-full bg-white border border-border-default rounded-2xl pl-11 pr-28 py-3.5 text-text-primary font-body text-sm placeholder:text-text-muted focus:outline-none focus:border-accent-purple/60 transition-all duration-200 shadow-sm"
+      />
+      <button
+        onClick={handleFind}
+        className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-display font-bold transition-all active:scale-95"
+        style={{ background: '#D9A441', color: '#1A0A00' }}
+      >
+        Find <ArrowRight size={13} />
+      </button>
+    </div>
 
-  {/* Crave Assistant CTA */}
-  <button
-    onClick={() => setCraveOpen(true)}
-    className="flex items-center gap-3 px-8 py-3.5 rounded-2xl text-sm font-display font-semibold transition-all duration-200 mx-auto"
-    style={{
-      background: '#2D1B17',
-      border: '1.5px solid rgba(217,164,65,0.35)',
-      color: '#E6C36A',
-    }}
-  >
-    <Sparkles size={16} style={{ color: '#D9A441' }} />
-    Not sure? Ask Crave Assistant
-  </button>
+    {/* Crave Assistant icon button */}
+    <div className="relative flex-shrink-0" ref={craveTooltipRef}>
+      {/* Tooltip — shows on hover or auto on first visit */}
+      {showTooltip && (
+        <div
+          className="absolute bottom-full right-0 mb-3 w-56 animate-fade-in"
+          style={{ zIndex: 40 }}
+        >
+          <div
+            className="rounded-2xl p-3.5 shadow-lg"
+            style={{
+              background: '#2D1B0E',
+              border: '1px solid rgba(217,164,65,0.3)',
+            }}
+          >
+            <div className="flex items-center gap-2 mb-1.5">
+              <Sparkles size={13} style={{ color: '#D9A441' }} />
+              <span className="font-display font-bold text-xs" style={{ color: '#F5EFE6' }}>
+                Can't decide?
+              </span>
+            </div>
+            <p className="text-xs leading-relaxed" style={{ color: '#C4AA88' }}>
+              Ask Crave Assistant — I'll help you pick the best food for your craving and budget.
+            </p>
+            {/* Arrow pointing down-right */}
+            <div
+              className="absolute bottom-[-7px] right-5"
+              style={{
+                width: 0, height: 0,
+                borderLeft: '7px solid transparent',
+                borderRight: '7px solid transparent',
+                borderTop: '7px solid rgba(217,164,65,0.3)',
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* The icon button */}
+      <button
+        onClick={() => { setCraveOpen(true); setShowTooltip(false); }}
+        onMouseEnter={() => setShowTooltip(true)}
+        onMouseLeave={() => setShowTooltip(false)}
+        className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-sm relative"
+        style={{
+          background: '#2D1B0E',
+          border: '1.5px solid rgba(217,164,65,0.4)',
+        }}
+        title="Crave Assistant"
+      >
+        <Sparkles size={20} style={{ color: '#D9A441' }} />
+        {/* Subtle pulse ring */}
+        <span
+          className="absolute inset-0 rounded-2xl animate-ping"
+          style={{
+            background: 'rgba(217,164,65,0.12)',
+            animationDuration: '2.5s',
+          }}
+        />
+      </button>
+    </div>
+  </div>
 </div>
 
             {/* Trending chips */}
@@ -396,34 +451,6 @@ export default function Landing() {
         </div>
 
         {/* ══════════════════════════════════════════
-            SECTION 6 — DECIDE FOR ME
-            Goal: remove all decision anxiety
-        ══════════════════════════════════════════ */}
-        <div className="mb-12">
-          <div className="bg-bg-secondary rounded-3xl border border-border-default p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-accent-purple/15 border border-accent-purple/30 flex items-center justify-center flex-shrink-0">
-                <Zap size={24} className="text-accent-purple" />
-              </div>
-              <div>
-                <h3 className="font-display font-bold text-text-primary text-lg mb-1">Can't decide?</h3>
-                <p className="text-text-muted text-sm font-body">Let us surprise you with the best match for your budget.</p>
-              </div>
-            </div>
-            <button
-              onClick={() => {
-                dispatch({ type: 'SET_SEARCH_QUERY', payload: '' });
-                navigate('/search');
-              }}
-              className="flex items-center gap-2.5 px-7 py-3.5 bg-accent-purple rounded-2xl text-white font-display font-bold text-sm hover:bg-accent-purple-dim transition-all shadow-purple hover:scale-[1.02] active:scale-[0.98] flex-shrink-0"
-            >
-              <Zap size={16} />
-              Decide for me
-            </button>
-          </div>
-        </div>
-
-        {/* ══════════════════════════════════════════
             SECTION 7 — TRUST BADGES
             Goal: reassure before leaving page
         ══════════════════════════════════════════ */}
@@ -446,7 +473,7 @@ export default function Landing() {
         {/* Footer note */}
         <div className="text-center pb-8">
           <p className="text-text-muted text-xs font-body">
-            No account needed · No endless scrolling · Just great food
+            Smart food matching · No endless scrolling · Just great food
           </p>
         </div>
 

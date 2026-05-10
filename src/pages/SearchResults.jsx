@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import BackButton from '../components/BackButton';
 import CraveAssistant from '../components/CraveAssistant';
 import { useNavigate } from 'react-router-dom';
@@ -263,19 +263,54 @@ function DecideModal({ dish, onClose, onAnother }) {
           <div className="flex items-center justify-between gap-3">
             <span className="font-display font-bold text-2xl text-text-primary">₹{dish.price}</span>
             <div className="flex gap-2">
-              <button
-  onClick={() => setCraveOpen(true)}
-  className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-display font-semibold transition-all"
-  style={{
-    background: '#2D1B17',
-    border: '1.5px solid rgba(217,164,65,0.3)',
-    color: '#E6C36A',
-  }}
->
-  <Sparkles size={15} style={{ color: '#D9A441' }} />
-  <span className="hidden sm:inline">Crave Assistant</span>
-  <span className="sm:hidden">Crave</span>
-</button>
+              <div className="relative" ref={craveRef}>
+  {/* Tooltip */}
+  {showCraveTooltip && (
+    <div
+      className="absolute bottom-full right-0 mb-2 w-48 animate-fade-in"
+      style={{ zIndex: 40 }}
+    >
+      <div
+        className="rounded-xl p-3 shadow-lg"
+        style={{
+          background: '#2D1B0E',
+          border: '1px solid rgba(217,164,65,0.3)',
+        }}
+      >
+        <p className="text-xs font-display font-bold mb-0.5" style={{ color: '#F5EFE6' }}>
+          Can't decide?
+        </p>
+        <p className="text-xs leading-relaxed" style={{ color: '#C4AA88' }}>
+          Ask Crave Assistant to find your perfect dish.
+        </p>
+        <div
+          className="absolute bottom-[-6px] right-5"
+          style={{
+            width: 0, height: 0,
+            borderLeft: '6px solid transparent',
+            borderRight: '6px solid transparent',
+            borderTop: '6px solid rgba(217,164,65,0.3)',
+          }}
+        />
+      </div>
+    </div>
+  )}
+
+  {/* Icon button */}
+  <button
+    onClick={() => { setCraveOpen(true); setShowCraveTooltip(false); }}
+    onMouseEnter={() => setShowCraveTooltip(true)}
+    onMouseLeave={() => setShowCraveTooltip(false)}
+    className="w-10 h-10 rounded-xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 relative"
+    style={{
+      background: '#2D1B0E',
+      border: '1.5px solid rgba(217,164,65,0.35)',
+    }}
+    title="Ask Crave Assistant"
+  >
+    <Sparkles size={18} style={{ color: '#D9A441' }} />
+  </button>
+</div>
               <button
                 onClick={() => {
                   dispatch({ type: 'ADD_TO_CART', payload: dish });
@@ -378,6 +413,8 @@ export default function SearchResults() {
   const [decideModal, setDecideModal]       = useState(null);
   const [usedIds, setUsedIds]               = useState([]);
   const [craveOpen, setCraveOpen]           = useState(false);
+  const [showCraveTooltip, setShowCraveTooltip] = useState(false);
+const craveRef = useRef(null);
 
   // Filter dishes
   const allResults = useMemo(() => filterDishes({
@@ -627,19 +664,18 @@ export default function SearchResults() {
 
       {/* ── Floating Decide For Me button (mobile) ─── */}
       {allResults.length > 1 && (
-       <button
-  onClick={() => setCraveOpen(true)}
-  className="fixed bottom-6 right-6 z-30 flex items-center gap-2.5 px-5 py-3.5 rounded-2xl text-sm font-display font-bold shadow-lg transition-all hover:scale-105 active:scale-95 sm:hidden"
-  style={{
-    background: '#2D1B17',
-    border: '1.5px solid rgba(217,164,65,0.4)',
-    color: '#E6C36A',
-  }}
->
-  <Sparkles size={16} style={{ color: '#D9A441' }} />
-  Crave Assistant
-</button>
-      )}
+  <button
+    onClick={() => setCraveOpen(true)}
+    className="fixed bottom-6 right-6 z-30 w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-all hover:scale-105 active:scale-95 sm:hidden"
+    style={{
+      background: '#2D1B0E',
+      border: '1.5px solid rgba(217,164,65,0.4)',
+    }}
+    title="Ask Crave Assistant"
+  >
+    <Sparkles size={22} style={{ color: '#D9A441' }} />
+  </button>
+)}
       {craveOpen && (
   <CraveAssistant onClose={() => setCraveOpen(false)} />
 )}
