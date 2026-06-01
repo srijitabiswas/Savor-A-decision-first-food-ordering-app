@@ -1,14 +1,18 @@
-import React, { useMemo, useState, useEffect, useRef } from 'react';
+
+raw
+Searchresults · JSX
+import React, { useMemo, useState } from 'react';
 import BackButton from '../components/BackButton';
 import CraveAssistant from '../components/CraveAssistant';
 import { useNavigate } from 'react-router-dom';
 import {
-  Search, SlidersHorizontal, Star, Clock, Users, X, ChevronRight, Plus, Minus, Zap, Sparkles, TrendingUp, Sparkles,
+  Search, SlidersHorizontal, Star, Clock, Users,
+  Shuffle, X, Plus, Zap, TrendingUp, Sparkles,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { filterDishes, cuisineCategories, getRestaurantById } from '../data/mockData';
 import PriceRangeSlider from '../components/PriceRangeSlider';
-
+ 
 // ── Sort options ──────────────────────────────────────────────────────────────
 const SORT_OPTIONS = [
   { value: 'rating',     label: 'Top Rated'         },
@@ -16,7 +20,7 @@ const SORT_OPTIONS = [
   { value: 'price_desc', label: 'Price: High → Low' },
   { value: 'delivery',   label: 'Fastest Delivery'  },
 ];
-
+ 
 // ── Tag colour map ────────────────────────────────────────────────────────────
 const TAG_COLORS = {
   'Best Seller': 'bg-accent-purple/20 text-accent-purple border-accent-purple/30',
@@ -27,7 +31,7 @@ const TAG_COLORS = {
   'Healthy':     'bg-teal-400/10      text-teal-400      border-teal-400/20',
   'Trending':    'bg-violet-400/10    text-violet-400    border-violet-400/20',
 };
-
+ 
 // ── Inline mini DishCard ──────────────────────────────────────────────────────
 function MiniCard({ dish, delay = 0, highlight = false }) {
   const navigate  = useNavigate();
@@ -36,12 +40,12 @@ function MiniCard({ dish, delay = 0, highlight = false }) {
   const inCart     = state.cart.find((i) => i.id === dish.id);
   const tag        = dish.tags?.[0];
   const tagStyle   = TAG_COLORS[tag] || 'bg-text-muted/10 text-text-secondary border-text-muted/20';
-
+ 
   const handleAdd = (e) => {
     e.stopPropagation();
     dispatch({ type: 'ADD_TO_CART', payload: dish });
   };
-
+ 
   return (
     <div
       onClick={() => navigate(`/dish/${dish.id}`)}
@@ -55,16 +59,15 @@ function MiniCard({ dish, delay = 0, highlight = false }) {
       {/* Image */}
       <div className="relative h-40 overflow-hidden bg-bg-secondary">
         <img
-  src={dish.image}
-  alt={dish.name}
-  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-  loading="lazy"
-  onError={(e) => {
-    e.target.onerror = null;
-    e.target.src = 'https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=600&q=80';
-  }}
-/>
-        
+          src={dish.image}
+          alt={dish.name}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          loading="lazy"
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = 'https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=600&q=80';
+          }}
+        />
         {tag && (
           <span className={`absolute top-3 left-3 px-2.5 py-1 rounded-lg border text-[11px] font-display font-semibold tracking-wide ${tagStyle}`}>
             {tag}
@@ -75,7 +78,7 @@ function MiniCard({ dish, delay = 0, highlight = false }) {
           <span className="text-[12px] font-display font-semibold text-text-primary">{dish.rating}</span>
         </div>
       </div>
-
+ 
       {/* Body */}
       <div className="p-4">
         <h3 className="font-display font-semibold text-text-primary text-[15px] leading-snug mb-0.5 group-hover:text-accent-purple transition-colors line-clamp-1">
@@ -109,14 +112,14 @@ function MiniCard({ dish, delay = 0, highlight = false }) {
     </div>
   );
 }
-
+ 
 // ── Hero card (top pick) ──────────────────────────────────────────────────────
 function HeroCard({ dish }) {
   const navigate   = useNavigate();
   const { state, dispatch } = useApp();
   const restaurant = getRestaurantById(dish.restaurantId);
   const inCart     = state.cart.find((i) => i.id === dish.id);
-
+ 
   return (
     <div
       onClick={() => navigate(`/dish/${dish.id}`)}
@@ -126,15 +129,15 @@ function HeroCard({ dish }) {
       {/* Background image */}
       <div className="relative h-64 sm:h-80 overflow-hidden">
         <img
-  src={dish.image}
-  alt={dish.name}
-  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-  onError={(e) => {
-    e.target.onerror = null;
-    e.target.src = 'https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=600&q=80';
-  }}
-/>
-
+          src={dish.image}
+          alt={dish.name}
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = 'https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=600&q=80';
+          }}
+        />
+ 
         {/* Best Match badge */}
         <div className="absolute top-4 left-4 flex items-center gap-2 px-3.5 py-2 rounded-xl bg-accent-purple/90 backdrop-blur-sm shadow-purple">
           <Zap size={13} className="text-white" />
@@ -142,7 +145,7 @@ function HeroCard({ dish }) {
             Best Match
           </span>
         </div>
-
+ 
         {/* Rating */}
         <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 rounded-xl glass">
           <Star size={13} className="text-accent-gold fill-accent-gold" />
@@ -150,7 +153,7 @@ function HeroCard({ dish }) {
           <span className="text-text-muted text-xs">({dish.ratingCount})</span>
         </div>
       </div>
-
+ 
       {/* Content overlay */}
       <div className="absolute bottom-0 left-0 right-0 p-6">
         <div className="flex flex-wrap gap-2 mb-3">
@@ -163,12 +166,12 @@ function HeroCard({ dish }) {
             );
           })}
         </div>
-
+ 
         <h2 className="font-display font-bold text-2xl sm:text-3xl text-text-primary mb-1 group-hover:text-accent-purple transition-colors">
           {dish.name}
         </h2>
         <p className="text-text-secondary text-sm mb-4">{restaurant?.name} · {restaurant?.area}</p>
-
+ 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1.5 text-text-secondary text-sm">
@@ -178,7 +181,7 @@ function HeroCard({ dish }) {
               <Users size={14} />{dish.quantity}
             </div>
           </div>
-
+ 
           <div className="flex items-center gap-3">
             <span className="font-display font-bold text-2xl text-text-primary">₹{dish.price}</span>
             <button
@@ -210,13 +213,13 @@ function HeroCard({ dish }) {
     </div>
   );
 }
-
+ 
 // ── Filter sidebar / panel ────────────────────────────────────────────────────
 function FilterPanel({ open, onClose }) {
   const { state, dispatch } = useApp();
-
+ 
   if (!open) return null;
-
+ 
   return (
     <>
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40" onClick={onClose} />
@@ -233,14 +236,14 @@ function FilterPanel({ open, onClose }) {
             <X size={15} className="text-text-secondary" />
           </button>
         </div>
-
+ 
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-8">
           {/* Price range */}
           <div>
             <h3 className="font-display font-semibold text-text-primary text-sm mb-4">Price Range</h3>
             <PriceRangeSlider />
           </div>
-
+ 
           {/* Sort */}
           <div>
             <h3 className="font-display font-semibold text-text-primary text-sm mb-3">Sort by</h3>
@@ -268,7 +271,7 @@ function FilterPanel({ open, onClose }) {
             </div>
           </div>
         </div>
-
+ 
         <div className="px-6 py-4 border-t border-border-default">
           <button
             onClick={() => { dispatch({ type: 'RESET_FILTERS' }); onClose(); }}
@@ -281,23 +284,18 @@ function FilterPanel({ open, onClose }) {
     </>
   );
 }
-
+ 
 // ─────────────────────────────────────────────────────────────────────────────
 //  MAIN COMPONENT
 // ─────────────────────────────────────────────────────────────────────────────
 export default function SearchResults() {
   const { state, dispatch } = useApp();
   const navigate = useNavigate();
-
+ 
   const [activeCategory, setActiveCategory] = useState('all');
   const [filterOpen, setFilterOpen]         = useState(false);
-  const [decideModal, setDecideModal]       = useState(null);
-  const [usedIds, setUsedIds]               = useState([]);
   const [craveOpen, setCraveOpen]           = useState(false);
-  const [showCraveTooltip, setShowCraveTooltip] = useState(false);
-  const [craveOpen, setCraveOpen] = useState(false);
-  const craveRef = useRef(null);
-
+ 
   // Filter dishes
   const allResults = useMemo(() => filterDishes({
     query:      state.searchQuery,
@@ -305,44 +303,40 @@ export default function SearchResults() {
     category:   activeCategory,
     sortBy:     state.sortBy,
   }), [state.searchQuery, state.priceRange, activeCategory, state.sortBy]);
-
-  const topPick       = allResults[0]   || null;
+ 
+  const topPick       = allResults[0] || null;
   const runnerUps     = allResults.slice(1, 4);
   const restOfResults = allResults.slice(4);
-
+ 
   const hasActiveFilters =
     state.priceRange.min > 0 ||
     state.priceRange.max < 10000 ||
     state.sortBy !== 'rating' ||
     activeCategory !== 'all';
-
+ 
   // Visible categories based on results
   const visibleCats = useMemo(() => {
     const available = new Set(filterDishes({
       query: state.searchQuery,
       priceRange: (state.priceRange.min > 0 || state.priceRange.max < 10000) ? state.priceRange : null,
     }).map((d) => d.category));
-
+ 
     return cuisineCategories.filter(
       (c) => c.id === 'all' || available.has(c.id)
     );
   }, [state.searchQuery, state.priceRange]);
-
+ 
   return (
     <>
       <FilterPanel open={filterOpen} onClose={() => setFilterOpen(false)} />
-      {decideModal && (
-        <CraveAssistant
-          dish={decideModal}
-          onClose={() => setDecideModal(null)}
-        />
-      )}
-
+      {craveOpen && <CraveAssistant onClose={() => setCraveOpen(false)} />}
+ 
       <div className="min-h-screen bg-bg-primary pt-16 pb-24">
         {/* ── Sticky search + controls ─── */}
         <div className="sticky top-16 z-30 glass border-b border-border-default">
           <div className="max-w-6xl mx-auto px-6 py-3 flex gap-3 items-center">
             <BackButton label="Back to Home" />
+ 
             {/* Search input */}
             <div className="relative flex-1">
               <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" />
@@ -354,7 +348,7 @@ export default function SearchResults() {
                 className="w-full bg-bg-elevated border border-border-default rounded-xl pl-10 pr-4 py-2.5 text-text-primary font-body text-sm placeholder:text-text-muted focus:outline-none focus:border-accent-purple/60 transition-all"
               />
             </div>
-
+ 
             {/* Filter button */}
             <button
               onClick={() => setFilterOpen(true)}
@@ -372,7 +366,7 @@ export default function SearchResults() {
                 </span>
               )}
             </button>
-
+ 
             {/* Sort (desktop only) */}
             <select
               value={state.sortBy}
@@ -387,7 +381,7 @@ export default function SearchResults() {
             </select>
           </div>
         </div>
-
+ 
         <div className="max-w-6xl mx-auto px-6 pt-6">
           {/* ── Active filter chips ─── */}
           {hasActiveFilters && (
@@ -414,7 +408,7 @@ export default function SearchResults() {
               </button>
             </div>
           )}
-
+ 
           {/* ── Category tabs ─── */}
           <div className="flex gap-2 overflow-x-auto pb-3 mb-6 scrollbar-none">
             {visibleCats.map((cat) => (
@@ -432,7 +426,7 @@ export default function SearchResults() {
               </button>
             ))}
           </div>
-
+ 
           {allResults.length === 0 ? (
             /* ── Empty state ─── */
             <div className="flex flex-col items-center justify-center py-24 text-center">
@@ -452,27 +446,25 @@ export default function SearchResults() {
             </div>
           ) : (
             <>
-              {/* ── Result count + Decide For Me ─── */}
+              {/* ── Result count + Ask Crave ─── */}
               <div className="flex items-center justify-between mb-6">
-                <div>
-                  <p className="text-text-muted text-sm font-body">
-                    <span className="text-text-primary font-display font-semibold">{allResults.length}</span>
-                    {' '}dish{allResults.length !== 1 ? 'es' : ''} found
-                    {state.searchQuery && (
-                      <> for <span className="text-text-primary">"{state.searchQuery}"</span></>
-                    )}
-                  </p>
-                </div>
+                <p className="text-text-muted text-sm font-body">
+                  <span className="text-text-primary font-display font-semibold">{allResults.length}</span>
+                  {' '}dish{allResults.length !== 1 ? 'es' : ''} found
+                  {state.searchQuery && (
+                    <> for <span className="text-text-primary">"{state.searchQuery}"</span></>
+                  )}
+                </p>
                 <button
-                  onClick={handleDecide}
+                  onClick={() => setCraveOpen(true)}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-bg-secondary border border-border-default text-text-secondary text-sm font-display font-medium hover:border-accent-purple/40 hover:text-accent-purple transition-all group"
                 >
                   <Shuffle size={15} className="group-hover:rotate-180 transition-transform duration-500" />
-                  <span className="hidden sm:inline">Decide for me</span>
-                  <span className="sm:hidden">Decide</span>
+                  <span className="hidden sm:inline">Ask Crave</span>
+                  <span className="sm:hidden">Crave</span>
                 </button>
               </div>
-
+ 
               {/* ── HERO: Best Match ─── */}
               {topPick && (
                 <section className="mb-8">
@@ -486,7 +478,7 @@ export default function SearchResults() {
                   <HeroCard dish={topPick} />
                 </section>
               )}
-
+ 
               {/* ── Runner-ups ─── */}
               {runnerUps.length > 0 && (
                 <section className="mb-10">
@@ -501,7 +493,7 @@ export default function SearchResults() {
                   </div>
                 </section>
               )}
-
+ 
               {/* ── All remaining results ─── */}
               {restOfResults.length > 0 && (
                 <section>
@@ -523,22 +515,21 @@ export default function SearchResults() {
           )}
         </div>
       </div>
-
-      {/* ── Floating Decide For Me button (mobile) ─── */}
+ 
+      {/* ── Floating Crave Assistant button (mobile) ─── */}
       {allResults.length > 1 && (
-  <button
-    onClick={() => setCraveOpen(true)}
-    className="fixed bottom-6 right-6 z-30 w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-all hover:scale-105 active:scale-95 sm:hidden"
-    style={{
-      background: '#2D1B0E',
-      border: '1.5px solid rgba(217,164,65,0.4)',
-    }}
-  >
-    <Sparkles size={22} style={{ color: '#D9A441' }} />
-  </button>
-)}
-    {craveOpen && <CraveAssistant onClose={() => setCraveOpen(false)} />}
-
+        <button
+          onClick={() => setCraveOpen(true)}
+          className="fixed bottom-6 right-6 z-30 w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-all hover:scale-105 active:scale-95 sm:hidden"
+          style={{
+            background: '#2D1B0E',
+            border: '1.5px solid rgba(217,164,65,0.4)',
+          }}
+          title="Ask Crave Assistant"
+        >
+          <Sparkles size={22} style={{ color: '#D9A441' }} />
+        </button>
+      )}
     </>
   );
 }
