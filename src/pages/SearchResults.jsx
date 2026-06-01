@@ -3,8 +3,7 @@ import BackButton from '../components/BackButton';
 import CraveAssistant from '../components/CraveAssistant';
 import { useNavigate } from 'react-router-dom';
 import {
-  Search, SlidersHorizontal, Star, Clock, Users,
-  Shuffle, X, ChevronRight, Plus, Minus, Zap, TrendingUp, Sparkles,
+  Search, SlidersHorizontal, Star, Clock, Users, X, ChevronRight, Plus, Minus, Zap, Sparkles, TrendingUp, Sparkles,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { filterDishes, cuisineCategories, getRestaurantById } from '../data/mockData';
@@ -212,124 +211,6 @@ function HeroCard({ dish }) {
   );
 }
 
-// ── Decide For Me modal ───────────────────────────────────────────────────────
-function DecideModal({ dish, onClose, onAnother }) {
-  const navigate = useNavigate();
-  const { dispatch } = useApp();
-  const restaurant = getRestaurantById(dish.restaurantId);
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-6 animate-fade-in">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-md" onClick={onClose} />
-      <div className="relative bg-bg-secondary border border-accent-purple/30 rounded-3xl overflow-hidden max-w-md w-full shadow-purple animate-fade-up">
-        {/* Close */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 w-8 h-8 rounded-xl bg-bg-elevated flex items-center justify-center z-10"
-        >
-          <X size={15} className="text-text-secondary" />
-        </button>
-
-        {/* Image */}
-        <div className="relative h-52 overflow-hidden">
-          <img src={dish.image} alt={dish.name} className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-bg-secondary/80 to-transparent" />
-          <div className="absolute bottom-4 left-4">
-            <div className="flex items-center gap-1.5 bg-accent-purple px-3 py-1.5 rounded-xl">
-              <Zap size={13} className="text-white" />
-              <span className="text-white font-display font-bold text-xs">We chose this for you</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Info */}
-        <div className="p-6">
-          <h2 className="font-display font-bold text-xl text-text-primary mb-1">{dish.name}</h2>
-          <p className="text-text-secondary text-sm mb-4">{restaurant?.name} · {restaurant?.area}</p>
-
-          <div className="flex items-center gap-4 mb-6">
-            <div className="flex items-center gap-1.5">
-              <Star size={14} className="text-accent-gold fill-accent-gold" />
-              <span className="font-display font-semibold text-text-primary text-sm">{dish.rating}</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-text-muted text-sm">
-              <Clock size={14} />{dish.deliveryTime}
-            </div>
-            <div className="flex items-center gap-1.5 text-text-muted text-sm">
-              <Users size={14} />{dish.quantity}
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between gap-3">
-            <span className="font-display font-bold text-2xl text-text-primary">₹{dish.price}</span>
-            <div className="flex gap-2">
-              <div className="relative" ref={craveRef}>
-  {/* Tooltip */}
-  {showCraveTooltip && (
-    <div
-      className="absolute bottom-full right-0 mb-2 w-48 animate-fade-in"
-      style={{ zIndex: 40 }}
-    >
-      <div
-        className="rounded-xl p-3 shadow-lg"
-        style={{
-          background: '#2D1B0E',
-          border: '1px solid rgba(217,164,65,0.3)',
-        }}
-      >
-        <p className="text-xs font-display font-bold mb-0.5" style={{ color: '#F5EFE6' }}>
-          Can't decide?
-        </p>
-        <p className="text-xs leading-relaxed" style={{ color: '#C4AA88' }}>
-          Ask Crave Assistant to find your perfect dish.
-        </p>
-        <div
-          className="absolute bottom-[-6px] right-5"
-          style={{
-            width: 0, height: 0,
-            borderLeft: '6px solid transparent',
-            borderRight: '6px solid transparent',
-            borderTop: '6px solid rgba(217,164,65,0.3)',
-          }}
-        />
-      </div>
-    </div>
-  )}
-
-  {/* Icon button */}
-  <button
-    onClick={() => { setCraveOpen(true); setShowCraveTooltip(false); }}
-    onMouseEnter={() => setShowCraveTooltip(true)}
-    onMouseLeave={() => setShowCraveTooltip(false)}
-    className="w-10 h-10 rounded-xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 relative"
-    style={{
-      background: '#2D1B0E',
-      border: '1.5px solid rgba(217,164,65,0.35)',
-    }}
-    title="Ask Crave Assistant"
-  >
-    <Sparkles size={18} style={{ color: '#D9A441' }} />
-  </button>
-</div>
-              <button
-                onClick={() => {
-                  dispatch({ type: 'ADD_TO_CART', payload: dish });
-                  onClose();
-                  navigate(`/dish/${dish.id}`);
-                }}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent-purple text-white text-sm font-display font-semibold hover:bg-accent-purple-dim transition-all shadow-purple-sm"
-              >
-                <Plus size={14} />
-                Yes, add it
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ── Filter sidebar / panel ────────────────────────────────────────────────────
 function FilterPanel({ open, onClose }) {
   const { state, dispatch } = useApp();
@@ -414,7 +295,8 @@ export default function SearchResults() {
   const [usedIds, setUsedIds]               = useState([]);
   const [craveOpen, setCraveOpen]           = useState(false);
   const [showCraveTooltip, setShowCraveTooltip] = useState(false);
-const craveRef = useRef(null);
+  const [craveOpen, setCraveOpen] = useState(false);
+  const craveRef = useRef(null);
 
   // Filter dishes
   const allResults = useMemo(() => filterDishes({
@@ -434,25 +316,6 @@ const craveRef = useRef(null);
     state.sortBy !== 'rating' ||
     activeCategory !== 'all';
 
-  // "Decide for me" — pick a random top dish
-  const handleDecide = () => {
-    const pool = allResults.filter((d) => !usedIds.includes(d.id)).slice(0, 10);
-    if (pool.length === 0) { setUsedIds([]); return; }
-    const pick = pool[Math.floor(Math.random() * pool.length)];
-    setUsedIds((prev) => [...prev, pick.id]);
-    setDecideModal(pick);
-  };
-
-  const handleAnother = () => {
-    const pool = allResults.filter(
-      (d) => !usedIds.includes(d.id) && d.id !== decideModal?.id
-    ).slice(0, 10);
-    if (pool.length === 0) { setUsedIds([]); setDecideModal(null); return; }
-    const pick = pool[Math.floor(Math.random() * pool.length)];
-    setUsedIds((prev) => [...prev, pick.id]);
-    setDecideModal(pick);
-  };
-
   // Visible categories based on results
   const visibleCats = useMemo(() => {
     const available = new Set(filterDishes({
@@ -469,10 +332,9 @@ const craveRef = useRef(null);
     <>
       <FilterPanel open={filterOpen} onClose={() => setFilterOpen(false)} />
       {decideModal && (
-        <DecideModal
+        <CraveAssistant
           dish={decideModal}
           onClose={() => setDecideModal(null)}
-          onAnother={handleAnother}
         />
       )}
 
@@ -671,14 +533,11 @@ const craveRef = useRef(null);
       background: '#2D1B0E',
       border: '1.5px solid rgba(217,164,65,0.4)',
     }}
-    title="Ask Crave Assistant"
   >
     <Sparkles size={22} style={{ color: '#D9A441' }} />
   </button>
 )}
-      {craveOpen && (
-  <CraveAssistant onClose={() => setCraveOpen(false)} />
-)}
+    {craveOpen && <CraveAssistant onClose={() => setCraveOpen(false)} />}
 
     </>
   );
